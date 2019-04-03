@@ -49,7 +49,7 @@
 	"wellDepth": "well_dep",
 	"sourceOfDepthCode": "p",
 	"projectNumber": "project_no  ",
-	"timeZoneCode": "tz_cd",
+	"timeZoneCode": "tz_cd ",
 	"daylightSavingsTimeFlag": "g",
 	"remarks": "site_rmks_tx",
 	"siteWebReadyCode": "q",

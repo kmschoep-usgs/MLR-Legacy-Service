@@ -65,7 +65,7 @@ public abstract class BaseIT {
 			+ "nat_water_use_cd, aqfr_type_cd, well_depth_va, hole_depth_va,"
 			+ "depth_src_cd, project_no, site_web_cd, site_cn, site_mn, mcd_cd";
 
-	public static final String QUERY_ALL_FROM = " from legacy_location";
+	public static final String QUERY_ALL_FROM = " from mlr_legacy_data.legacy_location";
 
 	public static final String QUERY_ALL_TO_SECOND = QUERY_ALL_SELECT + ", to_char(site_cr,'YYYY-MM-DD HH24:MI:SS') site_crm, to_char(site_md,'YYYY-MM-DD HH24:MI:SS') site_mdm" + QUERY_ALL_FROM;
 	public static final String QUERY_ALL_TO_MINUTE = QUERY_ALL_SELECT + ", to_char(site_cr,'YYYY-MM-DD HH24:MI') site_crm, to_char(site_md,'YYYY-MM-DD HH24:MI') site_mdm" + QUERY_ALL_FROM;

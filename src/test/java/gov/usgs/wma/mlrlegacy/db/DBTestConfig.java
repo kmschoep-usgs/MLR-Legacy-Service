@@ -23,6 +23,7 @@ public class DBTestConfig {
 
 		DatabaseDataSourceConnectionFactoryBean dbConnectionFactory = new DatabaseDataSourceConnectionFactoryBean(dataSource);
 		dbConnectionFactory.setDatabaseConfig(bean);
+		dbConnectionFactory.setSchema("mlr_legacy_data");
 		return dbConnectionFactory;
 	}
 
