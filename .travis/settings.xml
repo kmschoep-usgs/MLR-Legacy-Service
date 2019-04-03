@@ -10,7 +10,7 @@
 				<mlrLegacyPassword>changeMe</mlrLegacyPassword>
 				<mlrLegacyDataPassword>changeMe</mlrLegacyDataPassword>
 				<mlrLegacyUserPassword>changeMe</mlrLegacyUserPassword>
-				<mlrLegacyDataUsername>mlr_legacy_user</mlrLegacyDataUsername>
+				<mlrLegacyDataUsername>mlr_legacy</mlrLegacyDataUsername>
 				<mlrLegacyServicePassword>changeMe</mlrLegacyServicePassword>
 			</properties>
 		</profile>
