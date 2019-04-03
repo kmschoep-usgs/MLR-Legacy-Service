@@ -1,6 +1,5 @@
 package gov.usgs.wma.mlrlegacy.db;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -9,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import java.io.IOException;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
