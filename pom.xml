@@ -157,17 +157,13 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-			</plugin>
 			
-			<plugin>
+            <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.3.0</version>
             </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -181,6 +177,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -206,7 +203,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.22.1</version>
+                <version>0.28.0</version>
                 <executions>
                     <execution>
                         <id>prepare-it-database</id>
@@ -219,7 +216,7 @@
                             <showLogs>true</showLogs>
                             <images>
                                 <image>
-                                    <name>mlrlegacydb:0.2.0</name>
+                                    <name>mlr/mlr-legacy-db:latest</name>
                                     <alias>it-database</alias>
                                     <run>
                                         <env>

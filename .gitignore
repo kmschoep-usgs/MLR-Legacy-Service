@@ -32,3 +32,11 @@ hs_err_pid*
 /local_keystore.jks.old
 /.vscode/
 /nbproject/
+
+#cert files
+**/*.jks
+**/*.p12
+**/*.crt
+**/*.csr
+**/*.chain
+**/*.key
