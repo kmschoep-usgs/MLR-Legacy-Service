@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,9 @@ import java.util.List;
 import javax.validation.ConstraintValidatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 
 /**
  * Common functionality for validators verifying MonitoringLocation uniqueness

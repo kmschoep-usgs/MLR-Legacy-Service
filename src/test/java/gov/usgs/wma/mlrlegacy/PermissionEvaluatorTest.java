@@ -1,18 +1,20 @@
 package gov.usgs.wma.mlrlegacy;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(SpringRunner.class)
+import gov.usgs.wma.mlrlegacy.config.PermissionEvaluatorImpl;
+
+@ExtendWith(SpringExtension.class)
 public class PermissionEvaluatorTest {
 
 	PermissionEvaluatorImpl permissionEvaluatorImpl = new PermissionEvaluatorImpl();

@@ -2,7 +2,7 @@ package gov.usgs.wma.mlrlegacy;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -21,32 +22,39 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.WebApplicationContext;
 
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 import gov.usgs.wma.mlrlegacy.db.BaseIT;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+import gov.usgs.wma.mlrlegacy.validation.UniqueNormalizedStationNameValidator;
+import gov.usgs.wma.mlrlegacy.validation.UniqueSiteNumberAndAgencyCodeValidator;
 
-import springfox.documentation.spi.service.contexts.SecurityContext;
-
-@RunWith(SpringRunner.class)
-@WebMvcTest(Controller.class)
-@AutoConfigureMockMvc(secure=false)
+@AutoConfigureMockMvc
+@SpringBootTest
+@ActiveProfiles("test")
 public class ControllerTest {
 
 	@Autowired
+    private WebApplicationContext context;
+
 	private MockMvc mvc;
 
 	@MockBean
@@ -64,7 +72,16 @@ public class ControllerTest {
 	@MockBean
 	private SecurityContext securityContext;
 
+	@BeforeEach
+	public void setup() {
+		mvc = MockMvcBuilders
+			.webAppContextSetup(context)
+			.apply(springSecurity()) 
+			.build();
+	}
+
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenReturnData_whenGetByAgencyCodeAndSiteNumber_thenReturnMonitoringLocation() throws Exception {
 		MonitoringLocation mlOne = new MonitoringLocation();
 
@@ -88,6 +105,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenReturnNoData_whenGetByAgencyCodeAndSiteNumber_thenReturn404() throws Exception {
 		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
 		cruParams.set(Controller.AGENCY_CODE, BaseIT.DEFAULT_AGENCY_CODE);
@@ -100,6 +118,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenReturnData_whenGetByStationName_thenReturnMonitoringLocation() throws Exception {
 		final String MY_NORMALIZED_STATION_NAME = "THELOCALWATERINGHOLE";
 		MonitoringLocation mlOne = new MonitoringLocation();
@@ -132,6 +151,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenReturnNull_whenGetByStationName_thenReturn404() throws Exception {
 		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
 		cruParams.set(Controller.NORMALIZED_STATION_NAME, "STATIONY");
@@ -143,6 +163,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenReturnEmptyList_whenGetByStationName_thenReturn404() throws Exception {
 		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
 		cruParams.set(Controller.NORMALIZED_STATION_NAME, "STATIONY");
@@ -154,6 +175,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenML_whenGetById_thenReturnML() throws Exception {
 		MonitoringLocation ml = new MonitoringLocation();
 		ml.setId(BigInteger.ONE);
@@ -171,6 +193,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenNoML_whenGetById_thenReturnNotFound() throws Exception {
 		given(dao.getById(BigInteger.ONE)).willReturn(null);
 
@@ -180,6 +203,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenML_whenCreate_thenReturnMLWithId() throws Exception {
 		final String SITE_NUMBER = "12345678";
 		MonitoringLocation newMl = new MonitoringLocation();
@@ -202,6 +226,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenML_whenUpdate_thenReturnUpdatedML() throws Exception {
 		final String SITE_NUMBER = "12345678";
 		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE + "\", \"siteNumber\": \"" + SITE_NUMBER +"\"}";
@@ -224,6 +249,7 @@ public class ControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenNewML_whenUpdate_thenStatusNotFound() throws Exception {
 		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
 		
@@ -233,7 +259,7 @@ public class ControllerTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@WithMockUser(authorities="test_allowed")
 	public void givenML_whenPatch_thenReturnUpdatedML() throws Exception {
 		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
 		MonitoringLocation ml = new MonitoringLocation();
@@ -252,7 +278,7 @@ public class ControllerTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@WithMockUser(authorities="test_allowed")
 	public void givenNewML_whenPatch_thenStatusNotFound() throws Exception {
 		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
 
@@ -277,7 +303,7 @@ public class ControllerTest {
 
 	@Test
 	@WithMockUser(username="Known")
-	public void givenRealUser_thenUsernameKown() {
+	public void givenRealUser_thenUsernameKnown() {
 		Controller controller = new Controller();
 		assertEquals("Known", controller.getUsername());
 	}

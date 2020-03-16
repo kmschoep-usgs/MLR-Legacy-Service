@@ -1,18 +1,20 @@
 package gov.usgs.wma.mlrlegacy.db;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import java.io.IOException;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Controller integration tests for Validation operations
  */
+@ActiveProfiles("it")
 public class ControllerValidateIT extends BaseControllerIT {
 	private static final String URL = "/monitoringLocations/validate";
 	
@@ -25,7 +27,7 @@ public class ControllerValidateIT extends BaseControllerIT {
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, entity, String.class);
 		
 		String responseBody = responseEntity.getBody();
-		assertEquals(responseBody, 200, responseEntity.getStatusCodeValue());
+		assertEquals(200, responseEntity.getStatusCodeValue());
 
 		String msgs = responseBody;
 		assertTrue(msgs.equals("{}"));
@@ -39,7 +41,7 @@ public class ControllerValidateIT extends BaseControllerIT {
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, entity, String.class);
 
 		String responseBody = responseEntity.getBody();
-		assertEquals(responseBody, 200, responseEntity.getStatusCodeValue());
+		assertEquals(200, responseEntity.getStatusCodeValue());
 		
 		String msgs = responseBody;
 		assertTrue(msgs.equals("{\"validation_errors\":{\"duplicate_site\":\"Duplicate Agency Code and Site Number found in MLR.\"}}"));
@@ -54,7 +56,7 @@ public class ControllerValidateIT extends BaseControllerIT {
 		ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, entity, String.class);
 
 		String responseBody = responseEntity.getBody();
-		assertEquals(responseBody, 200, responseEntity.getStatusCodeValue());
+		assertEquals(200, responseEntity.getStatusCodeValue());
 		
 		String msgs = responseBody;
 		assertTrue(msgs.equals("{}"));

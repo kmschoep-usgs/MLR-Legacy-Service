@@ -1,14 +1,14 @@
 package gov.usgs.wma.mlrlegacy.db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
@@ -183,7 +183,7 @@ public class ControllerCUIT extends BaseControllerIT {
 		id = String.valueOf(ONE_MILLION);
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("updateSparseMonitoringLocation.json"), getAuthorizedHeaders());
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 
 		assertEquals(200, responseEntity.getStatusCodeValue());
 
@@ -205,7 +205,7 @@ public class ControllerCUIT extends BaseControllerIT {
 		id = String.valueOf(ONE_MILLION);
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("updateFullMonitoringLocation.json"), getAuthorizedHeaders());
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 
 		assertEquals(200, responseEntity.getStatusCodeValue());
 
@@ -227,7 +227,7 @@ public class ControllerCUIT extends BaseControllerIT {
 		id = String.valueOf(ONE_MILLION);
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("patchFullBlankMonitoringLocation.json"), getAuthorizedHeaders());
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 
 		assertEquals(200, responseEntity.getStatusCodeValue());
 
@@ -249,7 +249,7 @@ public class ControllerCUIT extends BaseControllerIT {
 		id = String.valueOf(ONE_MILLION);
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("patchFullNullMonitoringLocation.json"), getAuthorizedHeaders());
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 
 		assertEquals(200, responseEntity.getStatusCodeValue());
 
@@ -271,7 +271,7 @@ public class ControllerCUIT extends BaseControllerIT {
 		id = String.valueOf(ONE_MILLION);
 		HttpEntity<String> entity = new HttpEntity<String>("{\"agencyCode\": \"abc\", \"siteNumber\": \"123\"}", getAuthorizedHeaders());
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 
 		assertEquals(404, responseEntity.getStatusCodeValue());
 		assertNull(responseEntity.getBody());
@@ -280,14 +280,14 @@ public class ControllerCUIT extends BaseControllerIT {
 	@Test
 	public void patchNoToken() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("updateSparseMonitoringLocation.json"), getHeaders());
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 		assertEquals(401, responseEntity.getStatusCodeValue());
 	}
 
 	@Test
 	public void patchUnauthorized() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<String>(getInputJson("updateSparseMonitoringLocation.json"), getUnauthorizedHeaders());
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?_method=patch", HttpMethod.POST, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations", HttpMethod.PATCH, entity, String.class);
 		assertEquals(403, responseEntity.getStatusCodeValue());
 	}
 	

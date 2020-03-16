@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.config;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
-	@Value("${security.maintenanceRoles}")
+	@Value("${maintenanceRoles}")
 	private String[] roles;
 
 	@Override

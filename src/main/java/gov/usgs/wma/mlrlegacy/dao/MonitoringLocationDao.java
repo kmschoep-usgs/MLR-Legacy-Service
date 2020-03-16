@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.dao;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Component;
+
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 
 @Component
 public class MonitoringLocationDao {

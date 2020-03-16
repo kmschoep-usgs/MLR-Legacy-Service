@@ -6,11 +6,13 @@ import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.github.springtestdbunit.bean.DatabaseConfigBean;
 import com.github.springtestdbunit.bean.DatabaseDataSourceConnectionFactoryBean;
 
 @Configuration
+@Profile("it")
 public class DBTestConfig {
 
 	@Autowired
@@ -26,5 +28,4 @@ public class DBTestConfig {
 		dbConnectionFactory.setSchema("mlr_legacy_data");
 		return dbConnectionFactory;
 	}
-
 }

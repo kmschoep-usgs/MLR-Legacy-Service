@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

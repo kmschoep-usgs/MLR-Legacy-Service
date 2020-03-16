@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/mlr_legacy"
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+
+mybatis:
+  type-aliases-package: gov.usgs.wma.mlrlegacy
+  type-handlers-package: gov.usgs.wma.mlrlegacy
+  configuration:
+    cache-enabled: false
+    lazy-loading-enabled: false
+    aggressive-lazy-loading: false
+  mapper-locations: "classpath:monitoringLocation.xml"
+
+security:
+  require-ssl: true
+  basic:
+    enabled: false
+
+maintenanceRoles: test_allowed
+oauthResourceJwkSetUri: https://test.gov/test

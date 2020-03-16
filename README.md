@@ -22,7 +22,7 @@ mlrLegacyDbPort: 5435
 mlrLegacyDataUsername: mlr_legacy_data
 mlrLegacyDataPassword: changeMe
 
-oauthResourceTokenKeyUri: https://your.auth.server.url/oauth/token_key
+oauthResourceJwkSetUri: https://your.auth.server.url/oauth/jwks.json
 oauthResourceId: myResourceId
 
 springFrameworkLogLevel: info
