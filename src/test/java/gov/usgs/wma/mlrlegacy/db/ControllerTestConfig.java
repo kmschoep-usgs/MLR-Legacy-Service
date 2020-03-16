@@ -52,7 +52,7 @@ public class ControllerTestConfig {
 	public static RSAPrivateKey testPrivateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		String keyString;
 
-		try (InputStream inputStream = new ClassPathResource("test-it.key").getInputStream()) {
+		try (InputStream inputStream = new ClassPathResource("test-it.pem").getInputStream()) {
 			keyString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8)
 				.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
 		}
