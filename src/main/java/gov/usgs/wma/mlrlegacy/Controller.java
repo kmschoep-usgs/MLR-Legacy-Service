@@ -177,6 +177,8 @@ public class Controller {
 				return location;
 			}
 		} else {
+			// Note - Because the input here is a map instead of a POJO there are 
+			// currently no validations run and thus no way to get here.
 			response.sendError(406, "Invalid data submitted to CRU.");
 			return null;
 		}

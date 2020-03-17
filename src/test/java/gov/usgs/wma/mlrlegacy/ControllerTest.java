@@ -55,7 +55,7 @@ import gov.usgs.wma.mlrlegacy.validation.UniqueSiteNumberAndAgencyCodeValidator;
 public class ControllerTest {
 
 	@Autowired
-    private WebApplicationContext context;
+	private WebApplicationContext context;
 
 	private MockMvc mvc;
 
@@ -258,6 +258,29 @@ public class ControllerTest {
 		given(dao.getById(BigInteger.ONE)).willReturn(null);
 		mvc.perform(put("/monitoringLocations/1").content(requestBody).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@WithMockUser(authorities="test_allowed")
+	public void givenBadML_whenUpdate_thenStatusBadRequest() throws Exception {
+		final String SITE_NUMBER = "12345678";
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE + "\", \"siteNumber\": \"" + SITE_NUMBER +"\"}";
+		MonitoringLocation ml = new MonitoringLocation();
+
+		ml.setId(BigInteger.ONE);
+		ml.setAgencyCode(BaseIT.DEFAULT_AGENCY_CODE);
+		ml.setSiteNumber(SITE_NUMBER);
+
+		Mockito.doNothing().when(dao).update(any(MonitoringLocation.class));
+		given(dao.getById(BigInteger.ONE)).willReturn(ml);
+		given(uniqueNormalizedStationNameValidator.isValid(any(), any())).willReturn(false);
+		given(uniqueSiteIdAndAgencyCodeValidator.isValid(any(), any())).willReturn(false);
+
+		MvcResult result = mvc.perform(put("/monitoringLocations/1").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotAcceptable())
+				.andReturn();
+
+		assertEquals("Invalid data submitted to CRU.", result.getResponse().getErrorMessage());
 	}
 
 	@Test
