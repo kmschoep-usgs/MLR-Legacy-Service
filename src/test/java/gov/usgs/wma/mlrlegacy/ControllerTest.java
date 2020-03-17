@@ -3,6 +3,7 @@ package gov.usgs.wma.mlrlegacy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
@@ -36,6 +37,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -279,6 +281,63 @@ public class ControllerTest {
 
 	@Test
 	@WithMockUser(authorities="test_allowed")
+	public void givenML_whenValidateGood_thenReturnStatus() throws Exception {
+		final String SITE_NUMBER = "12345678";
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+		given(uniqueNormalizedStationNameValidator.isValid(any(), any())).willReturn(true);
+		given(uniqueSiteIdAndAgencyCodeValidator.isValid(any(), any())).willReturn(true);
+
+		mvc.perform(post("/monitoringLocations/validate").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser
+	public void givenML_whenValidateBadName_thenReturnStatus() throws Exception {
+		final String SITE_NUMBER = "12345678";
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+		given(uniqueNormalizedStationNameValidator.isValid(any(), any())).willReturn(false);
+		given(uniqueSiteIdAndAgencyCodeValidator.isValid(any(), any())).willReturn(true);
+
+		mvc.perform(post("/monitoringLocations/validate").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	@WithMockUser(authorities="unknown")
+	public void givenML_whenValidateBadUnique_thenReturnStatus() throws Exception {
+		final String SITE_NUMBER = "12345678";
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+		given(uniqueNormalizedStationNameValidator.isValid(any(), any())).willReturn(true);
+		given(uniqueSiteIdAndAgencyCodeValidator.isValid(any(), any())).willReturn(false);
+
+		mvc.perform(post("/monitoringLocations/validate").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+	
+		MvcResult result =mvc.perform(post("/monitoringLocations/validate").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andReturn();
+	
+		assertTrue(result.getResponse().getContentAsString().contains("\"validation_errors\":"));
+	}
+
+	@Test
+	@WithMockUser(authorities="test_allowed")
+	public void givenML_whenValidateBadBoth_thenReturnStatus() throws Exception {
+		final String SITE_NUMBER = "12345678";
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+		given(uniqueNormalizedStationNameValidator.isValid(any(), any())).willReturn(false);
+		given(uniqueSiteIdAndAgencyCodeValidator.isValid(any(), any())).willReturn(false);
+
+		MvcResult result =mvc.perform(post("/monitoringLocations/validate").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andReturn();
+	
+		assertTrue(result.getResponse().getContentAsString().contains("\"validation_errors\":"));
+	}
+
+	@Test
+	@WithMockUser(authorities="test_allowed")
 	public void givenNewML_whenPatch_thenStatusNotFound() throws Exception {
 		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
 
@@ -286,6 +345,97 @@ public class ControllerTest {
 		given(dao.getByAK(anyMap())).willReturn(null);
 		mvc.perform(patch("/monitoringLocations").content(requestBody).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void givenAnonUser_whenGet_thenStatusNotAllowed() throws Exception {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setId(BigInteger.ONE);
+		ml.setAgencyCode(BaseIT.DEFAULT_AGENCY_CODE);
+		ml.setSiteNumber("987654321");
+
+		given(dao.getById(BigInteger.ONE)).willReturn(ml);
+
+		mvc.perform(get("/monitoringLocations/1"))
+			.andExpect(status().is4xxClientError());
+		;
+	}
+
+	@Test
+	@WithMockUser
+	public void givenNoRoleUser_whenGet_thenStatusOk() throws Exception {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setId(BigInteger.ONE);
+		ml.setAgencyCode(BaseIT.DEFAULT_AGENCY_CODE);
+		ml.setSiteNumber("987654321");
+
+		given(dao.getById(BigInteger.ONE)).willReturn(ml);
+
+		mvc.perform(get("/monitoringLocations/1"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("id", is(equalTo(1))))
+			.andExpect(jsonPath(Controller.AGENCY_CODE, is(equalTo(ml.getAgencyCode()))))
+			.andExpect(jsonPath(Controller.SITE_NUMBER, is(equalTo(ml.getSiteNumber()))))
+		;
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void givenAnonUser_whenCreate_thenStatusNotAllowed() throws Exception {
+		final String SITE_NUMBER = "12345678";
+
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+
+		mvc.perform(post("/monitoringLocations").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	@WithMockUser
+	public void givenNoRoleUser_whenCreate_thenStatusNotAllowed() throws Exception {
+		final String SITE_NUMBER = "12345678";
+
+		String requestBody = "{\"agencyCode\": \"" + BaseIT.DEFAULT_AGENCY_CODE+ "\", \"siteNumber\": \"" + SITE_NUMBER +"\", \"stationIx\":\"ABC\"}";
+
+		mvc.perform(post("/monitoringLocations").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void givenAnonUser_whenUpdate_thenStatusNotAllowed() throws Exception {
+		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
+		
+		mvc.perform(put("/monitoringLocations/1").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	@WithMockUser
+	public void givenNoRoleUserUser_whenUpdate_thenStatusNotAllowed() throws Exception {
+		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
+		
+		mvc.perform(put("/monitoringLocations/1").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	@WithAnonymousUser
+	public void givenAnonUser_whenPatch_thenStatusNotAllowed() throws Exception {
+		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
+		
+		mvc.perform(patch("/monitoringLocations").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	@WithMockUser
+	public void givenNoRoleUser_whenPatch_thenStatusNotAllowed() throws Exception {
+		String requestBody = "{\"agencyCode\": \"USGS\", \"siteNumber\": \"12345678\"}";
+		
+		mvc.perform(patch("/monitoringLocations").content(requestBody).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
 	}
 
 	@Test
