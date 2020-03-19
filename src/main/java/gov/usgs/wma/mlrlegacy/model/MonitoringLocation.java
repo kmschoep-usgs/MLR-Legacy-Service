@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,6 +7,9 @@ import java.math.BigInteger;
 import javax.validation.constraints.Digits;
 
 import org.hibernate.validator.constraints.Length;
+
+import gov.usgs.wma.mlrlegacy.validation.UniqueKey;
+import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
 
 @UniqueKey(groups = {
 	javax.validation.groups.Default.class,

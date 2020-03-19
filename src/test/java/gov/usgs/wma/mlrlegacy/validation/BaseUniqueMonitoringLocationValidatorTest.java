@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,11 +6,18 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import javax.validation.ConstraintValidatorContext;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +31,7 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 	@Mock
 	private MonitoringLocationDao dao;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		instance = new BaseUniqueMonitoringLocationValidator(dao){
 			@Override
@@ -135,7 +142,6 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testSerializationError() throws JsonProcessingException {
 		ObjectMapper objectMapper = mock(ObjectMapper.class);
 		when(objectMapper.writeValueAsString(any())).thenThrow(JsonProcessingException.class);

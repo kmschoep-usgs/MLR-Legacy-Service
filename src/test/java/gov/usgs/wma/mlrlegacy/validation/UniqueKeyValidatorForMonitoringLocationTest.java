@@ -1,9 +1,14 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
 import javax.validation.ConstraintValidatorContext;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +20,7 @@ public class UniqueKeyValidatorForMonitoringLocationTest {
 	private UniqueNormalizedStationNameValidator uniqueNormalizedStationNameValidator;
 	private UniqueKeyValidatorForMonitoringLocation instance;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		uniqueSiteIdAndAgencyCodeValidator = mock(UniqueSiteNumberAndAgencyCodeValidator.class);
 		uniqueNormalizedStationNameValidator = mock(UniqueNormalizedStationNameValidator.class);

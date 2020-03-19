@@ -1,10 +1,15 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
 import java.util.Arrays;
 import javax.validation.ConstraintValidatorContext;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,8 +18,8 @@ public class UniqueNormalizedStationNameValidatorTest {
 	private MonitoringLocationDao dao;
 	private ConstraintValidatorContext context;
 	private UniqueNormalizedStationNameValidator instance;
-	
-	@Before
+
+	@BeforeEach
 	public void setUp() {
 		dao = mock(MonitoringLocationDao.class);
 		context = ConstraintValidatorContextMockFactory.get();

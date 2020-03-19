@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.dao;
 
 import static org.mockito.Mockito.verify;
 
@@ -6,15 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.apache.ibatis.type.JdbcType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import gov.usgs.wma.mlrlegacy.NotNullTypeHandler;
-
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class NotNullTypeHandlerTest {
 
 	private NotNullTypeHandler handler;
@@ -22,7 +20,7 @@ public class NotNullTypeHandlerTest {
 	@MockBean
 	private PreparedStatement ps;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		handler = new NotNullTypeHandler();
 	}

@@ -1,63 +1,79 @@
 package gov.usgs.wma.mlrlegacy.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.Date;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.github.database.rider.junit5.api.DBRider;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import gov.usgs.wma.mlrlegacy.Application;
-import gov.usgs.wma.mlrlegacy.MethodSecurityConfig;
-import gov.usgs.wma.mlrlegacy.OAuth2ResourceServerConfig;
+import gov.usgs.wma.mlrlegacy.config.MethodSecurityConfig;
+import gov.usgs.wma.mlrlegacy.config.WebSecurityConfig;
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 
 @SpringBootTest(
 		classes={DBTestConfig.class, Application.class,
-				OAuth2ResourceServerConfig.class,
+				WebSecurityConfig.class,
 				MethodSecurityConfig.class},
 		webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties={"maintenanceRoles=ROLE_DBA_55",
-				"security.oauth2.resource.jwt.keyValue=secret",
-				"oauthResourceTokenKeyUri=",
 				"security.require-ssl=false",
-				"server.ssl.enabled=false"}
+				"server.ssl.enabled=false"
+		}
 	)
+@DBRider
+@AutoConfigureTestDatabase(replace=Replace.NONE)
+@Import({MonitoringLocationDao.class, DBTestConfig.class})
 public abstract class BaseControllerIT extends BaseIT {
+
+	@Autowired
+	RSAPublicKey testPublicKey;
+
+	@Autowired
+	RSAPrivateKey testPrivateKey;
 
 	@Autowired
 	protected TestRestTemplate restTemplate;
 
-	@Value("${security.oauth2.resource.jwt.keyValue}")
-	private String secret;
-
-	public static String createToken(String username, String email, String ... roles) throws Exception {
+	public String createToken(String username, String email, String ... roles) throws Exception {	
 		String jwt = JWT.create()
+				.withAudience("mlr")
+				.withExpiresAt(Date.from(Instant.now().plusSeconds(1000)))
 				.withClaim("user_name", username)
 				.withArrayClaim("authorities", roles)
 				.withClaim("email", email)
-				.sign(Algorithm.HMAC256("secret"))
+				.sign(Algorithm.RSA256(testPublicKey, testPrivateKey))
 				;
 		return jwt;
 	}
 
-	public static HttpHeaders getAuthorizedHeaders() {
+	public HttpHeaders getAuthorizedHeaders() {
 		return getHeaders(KNOWN_USER, "known@usgs.gov", "ROLE_DBA_55");
 	}
 
-	public static HttpHeaders getUnauthorizedHeaders() {
+	public HttpHeaders getUnauthorizedHeaders() {
 		return getHeaders(KNOWN_USER, "known@usgs.gov", "ROLE_UNKNOWN");
 	}
 
-	public static HttpHeaders getHeaders() {
+	public HttpHeaders getHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		return headers;
 	}
 
-	public static HttpHeaders getHeaders(String username, String email, String ... roles) {
+	public HttpHeaders getHeaders(String username, String email, String ... roles) {
 		HttpHeaders headers = getHeaders();
 		try {
 			headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + createToken(username, email, roles));
@@ -67,5 +83,4 @@ public abstract class BaseControllerIT extends BaseIT {
 		}
 		return headers;
 	}
-
 }
