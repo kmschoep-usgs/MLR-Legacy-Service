@@ -6,17 +6,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.dbunit.dataset.ReplacementDataSet;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
@@ -26,15 +23,13 @@ import com.github.springtestdbunit.annotation.DbUnitConfiguration;
 import com.github.springtestdbunit.dataset.ReplacementDataSetModifier;
 import com.jayway.jsonpath.JsonPath;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ActiveProfiles("it")
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
 	DirtiesContextTestExecutionListener.class,
-	TransactionalTestExecutionListener.class,
 	TransactionDbUnitTestExecutionListener.class
 })
 @DbUnitConfiguration(dataSetLoader = CsvDataSetLoader.class)
-@AutoConfigureTestDatabase(replace=Replace.NONE)
 @Transactional(propagation=Propagation.NOT_SUPPORTED)
 public abstract class BaseIT {
 
@@ -107,7 +102,7 @@ public abstract class BaseIT {
 	}
 
 	protected String nowMinutes;
-	@Before
+	@BeforeEach
 	public void baseInit() {
 		nowMinutes = LocalDateTime.now(ZoneId.of("UTC")).toString().replace("T", " ").substring(0, 16);
 	}

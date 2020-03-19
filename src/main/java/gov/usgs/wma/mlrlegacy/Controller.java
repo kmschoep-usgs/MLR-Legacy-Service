@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
 import io.swagger.annotations.Api;
 import java.util.stream.Collectors;
 
@@ -194,6 +197,8 @@ public class Controller {
 				return location;
 			}
 		} else {
+			// Note - Because the input here is a map instead of a POJO there are 
+			// currently no validations run and thus no way to get here.
 			response.sendError(406, "Invalid data submitted to CRU.");
 			return null;
 		}

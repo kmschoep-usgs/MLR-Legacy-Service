@@ -1,9 +1,9 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
+import javax.validation.ClockProvider;
 import javax.validation.ConstraintValidatorContext;
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
-import org.hibernate.validator.spi.time.TimeProvider;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -15,9 +15,9 @@ public class ConstraintValidatorContextMockFactory {
 	public static ConstraintValidatorContext get () {
 		PathImpl path = PathImpl.createRootPath();
 		path.addBeanNode();
-		TimeProvider timeProvider = mock(TimeProvider.class);
+		ClockProvider timeProvider = mock(ClockProvider.class);
 		ConstraintValidatorContextImpl context = new ConstraintValidatorContextImpl(
-			null, timeProvider, path, null
+			null, timeProvider, path, null, null
 		);
 		context.disableDefaultConstraintViolation();
 		return spy(context);

@@ -5,7 +5,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
@@ -13,8 +13,8 @@ import com.github.springtestdbunit.annotation.ExpectedDatabase;
 import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 
 import gov.usgs.wma.mlrlegacy.Controller;
-import gov.usgs.wma.mlrlegacy.MonitoringLocation;
-import gov.usgs.wma.mlrlegacy.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 
 /**
  * DAO integration tests for Create and Update operations

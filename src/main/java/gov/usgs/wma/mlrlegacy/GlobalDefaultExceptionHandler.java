@@ -25,7 +25,7 @@ public class GlobalDefaultExceptionHandler {
 	
 private static final Logger LOG = LoggerFactory.getLogger(GlobalDefaultExceptionHandler.class);
 	
-	static final String ERROR_MESSAGE_KEY = "error_message";
+	public static final String ERROR_MESSAGE_KEY = "error_message";
 
 	@ExceptionHandler(Exception.class)
 	public @ResponseBody Map<String, String> handleUncaughtException(Exception ex, WebRequest request, HttpServletResponse response) throws IOException {

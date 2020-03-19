@@ -1,20 +1,18 @@
-server:
-  port: ${serverPort:8443}
-  ssl:
-    key-store: ${keystoreLocation}
-    key-store-password: ${keystorePassword}
-    key-password: ${keystorePassword}
-    key-alias: ${keystoreSSLKey:tomcat}
-    enabled-protocols: TLSv1.2
-
 spring:
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: "jdbc:postgresql://${mlrLegacyDbHost}:${mlrLegacyDbPort}/mlr_legacy"
     username: ${mlrLegacyDataUsername}
     password: ${mlrLegacyDataPassword}
     driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:/test-it.pub
   profiles:
-    active: default, swagger
+    active: it
 
 mybatis:
   type-aliases-package: gov.usgs.wma.mlrlegacy
@@ -29,11 +27,3 @@ security:
   require-ssl: true
   basic:
     enabled: false
-
-logging:
-  level:
-    root: ${rootLogLevel:info}
-    org:
-      springframework: ${springFrameworkLogLevel:info}
-
-maintenanceRoles: ${maintenanceRoles}

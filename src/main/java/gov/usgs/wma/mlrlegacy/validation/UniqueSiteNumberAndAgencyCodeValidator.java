@@ -1,4 +1,4 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.validation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,6 +6,10 @@ import java.util.Objects;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import gov.usgs.wma.mlrlegacy.Controller;
+import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 /**
  * No two monitoring locations should share the same Agency Code and Site Number.
  * 

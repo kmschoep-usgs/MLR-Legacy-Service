@@ -1,17 +1,20 @@
-package gov.usgs.wma.mlrlegacy;
+package gov.usgs.wma.mlrlegacy.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.io.IOException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import org.junit.Before;
-import org.junit.Test;
 
 public class MonitoringLocationTest {
 	private ObjectMapper objectMapper;
 	
-	@Before
+	@BeforeEach
 	public void setUp() {
 		objectMapper = new ObjectMapper();
 	}
@@ -22,9 +25,9 @@ public class MonitoringLocationTest {
 	 */
 	@Test
 	public void testSerializationExcludesTransactionType () throws JsonProcessingException {
-		MonitoringLocation ml = new MonitoringLocation();
+		final MonitoringLocation ml = new MonitoringLocation();
 		ml.setTransactionType("A");
-		String json = objectMapper.writeValueAsString(ml);
+		final String json = objectMapper.writeValueAsString(ml);
 		assertFalse(json.contains("transactionType"));
 	}
 	
@@ -34,9 +37,9 @@ public class MonitoringLocationTest {
 	 */
 	@Test
 	public void testDeserializationIncludesTransactionType() throws IOException {
-		String input = "{\"transactionType\":\"M\"}";
-		MonitoringLocation ml = objectMapper.readValue(input, MonitoringLocation.class);
-		String actualTransactionType = ml.getTransactionType();
+		final String input = "{\"transactionType\":\"M\"}";
+		final MonitoringLocation ml = objectMapper.readValue(input, MonitoringLocation.class);
+		final String actualTransactionType = ml.getTransactionType();
 		assertEquals("M", actualTransactionType);
 	}
 }
