@@ -243,76 +243,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
-                <configuration>
-                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-                    <environmentVariables>
-                        <mlrLegacyDbHost>localhost</mlrLegacyDbHost>
-                        <mlrLegacyDbPort>${it-database.port}</mlrLegacyDbPort>
-                        <mlrLegacyDataUsername>${mlrLegacyDataUsername}</mlrLegacyDataUsername>
-                        <mlrLegacyDataPassword>${mlrLegacyDataPassword}</mlrLegacyDataPassword>
-                        <mlrLegacyServicePassword>${mlrLegacyServicePassword}</mlrLegacyServicePassword>
-                    </environmentVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.28.0</version>
-                <executions>
-                    <execution>
-                        <id>prepare-it-database</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <registry>cidasdpdasartip.cr.usgs.gov:8447</registry>
-                            <showLogs>true</showLogs>
-                            <images>
-                                <image>
-                                    <name>mlr/mlr-legacy-db:latest</name>
-                                    <alias>it-database</alias>
-                                    <run>
-                                        <env>
-                                            <POSTGRES_PASSWORD>${postgresPassword}</POSTGRES_PASSWORD>
-                                            <MLR_LEGACY_PASSWORD>${mlrLegacyPassword}</MLR_LEGACY_PASSWORD>
-                                            <MLR_LEGACY_DATA_PASSWORD>${mlrLegacyDataPassword}</MLR_LEGACY_DATA_PASSWORD>
-                                            <MLR_LEGACY_USER_PASSWORD>${mlrLegacyUserPassword}</MLR_LEGACY_USER_PASSWORD>
-                                        </env>
-                                        <ports>
-                                            <port>it-database.port:5432</port>
-                                        </ports>
-                                        <wait>
-                                            <!-- <log>(?s)Setup Complete.*autovacuum launcher started</log> -->
-                                            <time>40000</time>
-                                        </wait>
-                                    </run>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>remove-it-database</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${owasp.dependency.check.version}</version>
@@ -327,6 +257,85 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.22.2</version>
+                        <configuration>
+                            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                            <environmentVariables>
+                                <mlrLegacyDbHost>localhost</mlrLegacyDbHost>
+                                <mlrLegacyDbPort>${it-database.port}</mlrLegacyDbPort>
+                                <mlrLegacyDataUsername>${mlrLegacyDataUsername}</mlrLegacyDataUsername>
+                                <mlrLegacyDataPassword>${mlrLegacyDataPassword}</mlrLegacyDataPassword>
+                                <mlrLegacyServicePassword>${mlrLegacyServicePassword}</mlrLegacyServicePassword>
+                            </environmentVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.28.0</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-it-database</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <registry>cidasdpdasartip.cr.usgs.gov:8447</registry>
+                                    <showLogs>true</showLogs>
+                                    <images>
+                                        <image>
+                                            <name>mlr/mlr-legacy-db:latest</name>
+                                            <alias>it-database</alias>
+                                            <run>
+                                                <env>
+                                                    <POSTGRES_PASSWORD>${postgresPassword}</POSTGRES_PASSWORD>
+                                                    <MLR_LEGACY_PASSWORD>${mlrLegacyPassword}</MLR_LEGACY_PASSWORD>
+                                                    <MLR_LEGACY_DATA_PASSWORD>${mlrLegacyDataPassword}</MLR_LEGACY_DATA_PASSWORD>
+                                                    <MLR_LEGACY_USER_PASSWORD>${mlrLegacyUserPassword}</MLR_LEGACY_USER_PASSWORD>
+                                                </env>
+                                                <ports>
+                                                    <port>it-database.port:5432</port>
+                                                </ports>
+                                                <wait>
+                                                    <!-- <log>(?s)Setup Complete.*autovacuum launcher started</log> -->
+                                                    <time>40000</time>
+                                                </wait>
+                                            </run>
+                                        </image>
+                                    </images>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>remove-it-database</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <scm>
         <connection>scm:git:https://github.com/USGS-CIDA/MLR-Legacy-Service.git</connection>

@@ -5,6 +5,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +19,7 @@ import com.jayway.jsonpath.JsonPath;
 /**
  * Controller integration tests for Create and Update operations
   */
+@ActiveProfiles("it")
 public class ControllerCUIT extends BaseControllerIT {
 
 	@Test
