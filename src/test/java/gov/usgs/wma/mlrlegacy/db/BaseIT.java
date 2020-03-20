@@ -37,6 +37,7 @@ public abstract class BaseIT {
 	public static final BigInteger ONE_MILLION = BigInteger.valueOf(1000000);
 	public static final String DEFAULT_AGENCY_CODE = "USGS ";
 	public static final String DEFAULT_SITE_NUMBER = "123456789012345";
+	public static final String DEFAULT_DISTRICT_CODE = "3 ";
 	public static final String DEFAULT_CREATED_DATE_M = "2017-08-24 09:15";
 	public static final String DEFAULT_CREATED_DATE_S = DEFAULT_CREATED_DATE_M + ":23";
 	public static final String DEFAULT_CREATED_BY = "site_cn ";
