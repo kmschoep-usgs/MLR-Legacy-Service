@@ -21,6 +21,8 @@ WORKDIR /build
 #download all maven dependencies (this will only re-run if the pom has changed)
 RUN mvn -B dependency:go-offline
 
+COPY dependency-check-suppression.xml /build/dependency-check-suppression.xml
+
 # copy git history into build image so that sonar can report trends over time
 COPY .git /build
 COPY src /build/src
