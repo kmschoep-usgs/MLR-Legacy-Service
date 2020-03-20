@@ -9,12 +9,14 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
 /**
  * Controller integration tests for Read operations
  */
+@ActiveProfiles("it")
 @DatabaseSetup("classpath:/testData/setupOne/")
 public class ControllerRIT extends BaseControllerIT {
 

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
@@ -19,6 +20,7 @@ import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 /**
  * DAO integration tests for Create and Update operations
  */
+@ActiveProfiles("it")
 public class MonitoringLocationDaoCUIT extends BaseDaoIT {
 
 	@Autowired

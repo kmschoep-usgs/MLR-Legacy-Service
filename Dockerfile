@@ -23,9 +23,12 @@ RUN mvn -B dependency:go-offline
 
 # copy git history into build image so that sonar can report trends over time
 COPY .git /build
+COPY dependency-check-suppression.xml /build/dependency-check-suppression.xml
 COPY src /build/src
 
-ARG BUILD_COMMAND="mvn -B clean package"
+# the -D option supresses INFO-level logs about dependency downloads. This enables the build to finish within Travis' log length limit.
+# The -P option skips the dependency security check in favor of build stability -- the official NVD server is rate-limited, and external builds lack access to our internal NVD mirror
+ARG BUILD_COMMAND="mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean verify jacoco:report -P=\!dependency-security-check"
 RUN ${BUILD_COMMAND}
 
 FROM usgswma/wma-spring-boot-base:8-jre-slim-0.0.4
