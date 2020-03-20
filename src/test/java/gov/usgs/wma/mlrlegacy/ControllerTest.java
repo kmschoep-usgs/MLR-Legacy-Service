@@ -142,22 +142,31 @@ public class ControllerTest {
 		
 		List<MonitoringLocation> monitoringLocations = Arrays.asList(mlOne, mlTwo);
 
-		Map<String, Object> params = new HashMap<>();
-		params.put(Controller.DISTRICT_CODES, Arrays.asList(BaseIT.DEFAULT_DISTRICT_CODE));
-		params.put(Controller.START_DATE, "2014-01-24");
-		params.put(Controller.END_DATE, "2016-01-24");
-
 		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
 		cruParams.set(Controller.DISTRICT_CODE, BaseIT.DEFAULT_DISTRICT_CODE);
 		cruParams.set(Controller.START_DATE, "2014-01-24");
 		cruParams.set(Controller.END_DATE, "2016-01-24");
 		
-		given(dao.getByDistrictCodeDateRange(params)).willReturn(monitoringLocations);
+		given(dao.getByDistrictCodeDateRange(anyMap())).willReturn(monitoringLocations);
 		
 		List<Integer> expectedIds = Arrays.asList(1, 10);
 		mvc.perform(get("/monitoringLocations").params(cruParams))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$..['id']", is(equalTo(expectedIds))));
+	}
+	
+	@Test
+	@WithMockUser(authorities="test_allowed")
+	public void givenReturnNull_whenGetByDistrictCodeandDateRange_thenReturn404() throws Exception {
+		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
+		cruParams.set(Controller.DISTRICT_CODE, BaseIT.DEFAULT_DISTRICT_CODE);
+		cruParams.set(Controller.START_DATE, "2014-01-24");
+		cruParams.set(Controller.END_DATE, "2016-01-24");
+
+		given(dao.getByNormalizedName(anyMap())).willReturn(null);
+
+		mvc.perform(get("/monitoringLocations").params(cruParams))
+			.andExpect(status().isNotFound());
 	}
 	
 	@Test
