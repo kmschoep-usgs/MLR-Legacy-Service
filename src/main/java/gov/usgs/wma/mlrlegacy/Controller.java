@@ -51,6 +51,10 @@ public class Controller {
 	public static final String UNKNOWN_USERNAME = "unknown ";
 	public static final String AGENCY_CODE = "agencyCode";
 	public static final String SITE_NUMBER = "siteNumber";
+	public static final String DISTRICT_CODE = "districtCode";
+	public static final String DISTRICT_CODES = "districtCodes";
+	public static final String START_DATE = "startDate";
+	public static final String END_DATE = "endDate";
 	public static final String DUPLICATE_SITE = "duplicate_site";
 	public static final String STATE_FIPS_CODE = "stateFipsCode";
 	public static final String UPDATED_BY = "updatedBy";
@@ -71,6 +75,23 @@ public class Controller {
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 		}
 		return ml;
+	}
+	
+	@GetMapping(params = {DISTRICT_CODE, START_DATE, END_DATE})
+	public List<MonitoringLocation> getMonitoringLocationsByDistrictCodeDateRange(
+		@RequestParam(name = DISTRICT_CODE) List<String> districtCode,
+		@RequestParam(name = START_DATE) String startDate,
+		@RequestParam(name = END_DATE) String endDate,
+		HttpServletResponse response) {
+		Map<String, Object> params = new HashMap<>();
+		params.put(DISTRICT_CODES, districtCode);
+		params.put(START_DATE, startDate);
+		params.put(END_DATE, endDate);
+		List<MonitoringLocation> mls = mLDao.getByDistrictCodeDateRange(params);
+		if (null == mls || mls.isEmpty()) {
+			response.setStatus(HttpStatus.NOT_FOUND.value());
+		}
+		return mls;
 	}
 
 	/**

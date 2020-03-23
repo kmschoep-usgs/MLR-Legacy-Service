@@ -119,6 +119,56 @@ public class ControllerTest {
 			.andExpect(status().isNotFound());
 	}
 
+	
+	@Test
+	@WithMockUser(authorities="test_allowed")
+	public void givenReturnData_whenGetByDistrictCodeandDateRange_thenReturnMonitoringLocation() throws Exception {
+		MonitoringLocation mlOne = new MonitoringLocation();
+		MonitoringLocation mlTwo = new MonitoringLocation();
+
+		mlOne.setId(BigInteger.ONE);
+		mlOne.setAgencyCode(BaseIT.DEFAULT_AGENCY_CODE);
+		mlOne.setSiteNumber("987654321");
+		mlOne.setDistrictCode(BaseIT.DEFAULT_DISTRICT_CODE);
+		mlOne.setCreated(BaseIT.DEFAULT_CREATED_DATE_M);
+		mlOne.setUpdated(BaseIT.DEFAULT_UPDATED_DATE_S);
+		
+		mlTwo.setId(BigInteger.TEN);
+		mlTwo.setAgencyCode(BaseIT.DEFAULT_AGENCY_CODE);
+		mlTwo.setSiteNumber("987354321");
+		mlTwo.setDistrictCode(BaseIT.DEFAULT_DISTRICT_CODE);
+		mlTwo.setCreated("2014-08-24 09:15");
+		mlTwo.setUpdated("2015-01-24 06:55");
+		
+		List<MonitoringLocation> monitoringLocations = Arrays.asList(mlOne, mlTwo);
+
+		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
+		cruParams.set(Controller.DISTRICT_CODE, BaseIT.DEFAULT_DISTRICT_CODE);
+		cruParams.set(Controller.START_DATE, "2014-01-24");
+		cruParams.set(Controller.END_DATE, "2016-01-24");
+		
+		given(dao.getByDistrictCodeDateRange(anyMap())).willReturn(monitoringLocations);
+		
+		List<Integer> expectedIds = Arrays.asList(1, 10);
+		mvc.perform(get("/monitoringLocations").params(cruParams))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$..['id']", is(equalTo(expectedIds))));
+	}
+	
+	@Test
+	@WithMockUser(authorities="test_allowed")
+	public void givenReturnNull_whenGetByDistrictCodeandDateRange_thenReturn404() throws Exception {
+		MultiValueMap<String, String> cruParams = new LinkedMultiValueMap<>();
+		cruParams.set(Controller.DISTRICT_CODE, BaseIT.DEFAULT_DISTRICT_CODE);
+		cruParams.set(Controller.START_DATE, "2014-01-24");
+		cruParams.set(Controller.END_DATE, "2016-01-24");
+
+		given(dao.getByNormalizedName(anyMap())).willReturn(null);
+
+		mvc.perform(get("/monitoringLocations").params(cruParams))
+			.andExpect(status().isNotFound());
+	}
+	
 	@Test
 	@WithMockUser(authorities="test_allowed")
 	public void givenReturnData_whenGetByStationName_thenReturnMonitoringLocation() throws Exception {

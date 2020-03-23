@@ -25,6 +25,10 @@ public class MonitoringLocationDao {
 	public List<MonitoringLocation> getByNormalizedName(Map<String, Object> queryParams) {
 		return sqlSession.selectList("getByNormalizedName", queryParams);
 	}
+	
+	public List<MonitoringLocation> getByDistrictCodeDateRange(Map<String, Object> queryParams) {
+		return sqlSession.selectList("getByDistrictCodeDateRange", queryParams);
+	}
 
 	public MonitoringLocation getById(BigInteger id) {
 		return sqlSession.selectOne("getById", id);

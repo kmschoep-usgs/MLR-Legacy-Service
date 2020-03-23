@@ -115,6 +115,18 @@
         from <include refid="schemaName"/>legacy_location
 		where station_ix = #{normalizedStationName, jdbcType=CHAR, typeHandler=NotNullTypeHandler}
     </select>
+    
+    <select id="getByDistrictCodeDateRange" parameterType="Map" resultMap="result">
+        select <include refid="baseCols"/>
+        from <include refid="schemaName"/>legacy_location
+		where trim(district_cd) in <foreach item="districtCode" collection="districtCodes" separator="," open="(" close=")">
+			#{districtCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler}
+			</foreach>
+			and (
+				(date(site_cr) >= to_date(#{startDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD') and date(site_cr) &lt;= to_date(#{endDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD'))
+				or (date(site_md) >= to_date(#{startDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD') and date(site_md) &lt;= to_date(#{endDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD'))
+			)
+    </select>
 
     <insert id="create" parameterType="MonitoringLocation" useGeneratedKeys="true" keyProperty="id">
         insert into <include refid="schemaName"/>legacy_location(<include refid="dataCols" />, <include refid="timestampCols" />)

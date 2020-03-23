@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,49 @@ public class MonitoringLocationDaoRIT extends BaseDaoIT {
 		Map<String, Object> params = new HashMap<>();
 		params.put(Controller.NORMALIZED_STATION_NAME, "DOESNOTEXIST");
 		List<MonitoringLocation> locations = dao.getByNormalizedName(params);
+		assertEquals(0, locations.size());
+	}
+	
+	@Test
+	public void getByDistrictCodeDateRange() {
+		final String DISTRICT_CODE = "dis";
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.DISTRICT_CODES, Arrays.asList(DISTRICT_CODE));
+		params.put(Controller.START_DATE, "2017-01-24");
+		params.put(Controller.END_DATE, "2018-08-24");
+		List<MonitoringLocation> locations = dao.getByDistrictCodeDateRange(params);
+		assertNotNull(locations);
+		assertEquals(1, locations.size());
+		MonitoringLocation location = locations.get(0);
+		assertOneMillion(location);
+	}
+	
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	@Test
+	public void getByDistrictCodeDateRangeMultipleResults() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.DISTRICT_CODES, Arrays.asList("2","4"));
+		params.put(Controller.START_DATE, "2000-01-24");
+		params.put(Controller.END_DATE, "2020-01-24");
+		List<MonitoringLocation> locations = dao.getByDistrictCodeDateRange(params);
+		assertNotNull(locations);
+
+		assertEquals(2, locations.size());
+		MonitoringLocation location0 = locations.get(0);
+		MonitoringLocation location1 = locations.get(1);
+
+		assertEquals("4  ", location0.getDistrictCode());
+		assertEquals("2  ", location1.getDistrictCode());
+		assertNotEquals(location0.getId(), location1.getId());
+	}
+
+	@Test
+	public void getByDistrictCodeDateRangeNotFound() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.DISTRICT_CODES, Arrays.asList("ABC","xyz"));
+		params.put(Controller.START_DATE, "2000-01-24");
+		params.put(Controller.END_DATE, "2020-01-24");
+		List<MonitoringLocation> locations = dao.getByDistrictCodeDateRange(params);
 		assertEquals(0, locations.size());
 	}
 	
