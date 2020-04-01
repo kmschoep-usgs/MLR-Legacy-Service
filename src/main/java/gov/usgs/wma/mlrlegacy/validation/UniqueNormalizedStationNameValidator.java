@@ -41,6 +41,8 @@ public class UniqueNormalizedStationNameValidator extends BaseUniqueMonitoringLo
 		boolean valid;
 		if (isCreate(newOrUpdatedMonitoringLocation)) {
 			valid = isValidNormalizedStationNameCreate(newOrUpdatedMonitoringLocation, context);
+		} else if (isPKUpdate(newOrUpdatedMonitoringLocation)) {
+			valid = isValidNormalizedStationNamePKUpdate(newOrUpdatedMonitoringLocation, context);
 		} else {
 			valid = isValidNormalizedStationNameUpdate(newOrUpdatedMonitoringLocation, context);
 		}
@@ -100,6 +102,29 @@ public class UniqueNormalizedStationNameValidator extends BaseUniqueMonitoringLo
 				msg = buildDuplicateStationIxErrorMessage(monitoringLocationCreation, existingMonitoringLocations);
 			}
 		}
+		if (!valid) {
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(msg).addPropertyNode(Controller.STATION_IX).addConstraintViolation();
+		}
+		
+		return valid;
+	}
+	
+	/**
+	 * Side effects: adds constraint violations to `context`
+	 * @param monitoringLocationCreation
+	 * @param context
+	 * @return true if valid, false if invalid
+	 */
+	protected boolean isValidNormalizedStationNamePKUpdate(MonitoringLocation monitoringLocationCreation, ConstraintValidatorContext context) {
+		boolean valid = true;
+		String msg = "";
+		if(null == monitoringLocationCreation.getStationIx()) {
+			//creations must define a stationIx
+			valid = false;
+			msg = "The Monitoring Location did not define a required field: the normalized station name (stationIx)";
+		} 
+		
 		if (!valid) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(msg).addPropertyNode(Controller.STATION_IX).addConstraintViolation();

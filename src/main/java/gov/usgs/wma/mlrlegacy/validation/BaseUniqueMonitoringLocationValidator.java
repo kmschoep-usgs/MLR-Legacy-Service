@@ -70,6 +70,21 @@ public abstract class BaseUniqueMonitoringLocationValidator {
 
 	/**
 	 * 
+	 * @param ml
+	 * @return true if it's an update to the primary key, which means 
+	 *         it's a copy of any existing site with a new agency code and/or site number.
+	 *         The station name and station ix will temporarily be a duplicate of the old
+	 *         site until the original station name is updated.
+	 */	
+	protected boolean isPKUpdate(MonitoringLocation ml) {
+		boolean isUpdate = 
+			"PK".equals(ml.getTransactionType());
+		
+		return isUpdate;
+	}
+	
+	/**
+	 * 
 	 * @param ml1
 	 * @param ml2
 	 * @return true if they have the same agency code and site number,

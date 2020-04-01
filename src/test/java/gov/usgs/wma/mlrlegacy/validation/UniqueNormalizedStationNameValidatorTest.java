@@ -36,6 +36,15 @@ public class UniqueNormalizedStationNameValidatorTest {
 	}
 	
 	@Test
+	public void testMissingStationIxOnPKUpdateCreate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setTransactionType("PK");
+		ml.setStationIx(null);
+		boolean valid = instance.isValid(ml, context);
+		assertFalse(valid);
+	}
+	
+	@Test
 	public void testOneDuplicateFoundOnCreate() {
 		MonitoringLocation ml = new MonitoringLocation();
 		ml.setTransactionType("A");
@@ -47,6 +56,20 @@ public class UniqueNormalizedStationNameValidatorTest {
 		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList(ml));
 		boolean valid = instance.isValid(ml, context);
 		assertFalse(valid);
+	}
+	
+	@Test
+	public void testOneDuplicateFoundOnPKUpdate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setTransactionType("PK");
+		ml.setAgencyCode("USGS");
+		ml.setSiteNumber("123456789");
+		ml.setStateFipsCode("55");
+		ml.setStationIx("WATERINGHOLE");
+		
+		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList(ml));
+		boolean valid = instance.isValid(ml, context);
+		assertTrue(valid);
 	}
 	
 	@Test
@@ -64,9 +87,34 @@ public class UniqueNormalizedStationNameValidatorTest {
 	}
 	
 	@Test
+	public void testManyDuplicatesFoundOnPKUpdate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setTransactionType("PK");
+		ml.setAgencyCode("USGS");
+		ml.setSiteNumber("123456789");
+		ml.setStateFipsCode("55");
+		ml.setStationIx("WATERINGHOLE");
+		
+		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList(ml, ml, ml));
+		boolean valid = instance.isValid(ml, context);
+		assertTrue(valid);
+	}
+	
+	@Test
 	public void testNoDuplicateFoundOnCreate() {
 		MonitoringLocation ml = new MonitoringLocation();
 		ml.setTransactionType("A");
+		ml.setStationIx("WATERINGHOLE");
+		
+		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList());
+		boolean valid = instance.isValid(ml, context);
+		assertTrue(valid);
+	}
+	
+	@Test
+	public void testNoDuplicateFoundOnPKUpdate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setTransactionType("PK");
 		ml.setStationIx("WATERINGHOLE");
 		
 		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList());

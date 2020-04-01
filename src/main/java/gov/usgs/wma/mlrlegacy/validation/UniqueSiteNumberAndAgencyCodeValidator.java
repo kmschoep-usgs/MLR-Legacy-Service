@@ -43,7 +43,7 @@ public class UniqueSiteNumberAndAgencyCodeValidator extends BaseUniqueMonitoring
 			if (existingMonitoringLocation != null) {
 				if(isPatch(newOrUpdatedMonitoringLocation)) {
 					valid = true;
-				} else if (isCreate(newOrUpdatedMonitoringLocation)){
+				} else if (isCreate(newOrUpdatedMonitoringLocation) || isPKUpdate(newOrUpdatedMonitoringLocation)){
 					valid = false;
 				} else if (isUpdate(newOrUpdatedMonitoringLocation)){
 					if(isThisUpdateValid(newOrUpdatedMonitoringLocation, existingMonitoringLocation)){
@@ -53,7 +53,7 @@ public class UniqueSiteNumberAndAgencyCodeValidator extends BaseUniqueMonitoring
 					}
 				} else {
 					valid = false;
-					msg = "Unable to classify Monitoring Location as a Create, Update, or Patch.";
+					msg = "Unable to classify Monitoring Location as a Create, Update, Primary Key Update or Patch.";
 				}
 			}
 		}

@@ -298,11 +298,11 @@
                                     <goal>start</goal>
                                 </goals>
                                 <configuration>
-                                    <registry>cidasdpdasartip.cr.usgs.gov:8447</registry>
+                                    <registry>artifactory.wma.chs.usgs.gov</registry>
                                     <showLogs>true</showLogs>
                                     <images>
                                         <image>
-                                            <name>mlr/mlr-legacy-db:latest</name>
+                                            <name>wma-docker/mlr/mlr-legacy-db:latest</name>
                                             <alias>it-database</alias>
                                             <run>
                                                 <env>

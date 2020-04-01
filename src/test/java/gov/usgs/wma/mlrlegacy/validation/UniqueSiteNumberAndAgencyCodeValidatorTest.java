@@ -60,11 +60,36 @@ public class UniqueSiteNumberAndAgencyCodeValidatorTest {
 	}
 	
 	@Test
+	public void testDuplicatePKCreate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setAgencyCode("USGS");
+		ml.setSiteNumber("1");
+		ml.setTransactionType("PK");
+		
+		when(dao.getByAK(any())).thenReturn(ml);
+		boolean result = instance.isValid(ml, context);
+		//it's bad to create an existing ML
+		assertFalse(result);
+	}
+	
+	@Test
 	public void testNoDuplicateCreate() {
 		MonitoringLocation ml = new MonitoringLocation();
 		ml.setAgencyCode("USGS");
 		ml.setSiteNumber("1");
 		ml.setTransactionType("A");
+		
+		when(dao.getByAK(any())).thenReturn(null);
+		boolean result = instance.isValid(ml, context);
+		assertTrue(result);
+	}
+	
+	@Test
+	public void testNoDuplicatePKCreate() {
+		MonitoringLocation ml = new MonitoringLocation();
+		ml.setAgencyCode("USGS");
+		ml.setSiteNumber("1");
+		ml.setTransactionType("PK");
 		
 		when(dao.getByAK(any())).thenReturn(null);
 		boolean result = instance.isValid(ml, context);

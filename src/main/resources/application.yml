@@ -29,11 +29,24 @@ security:
   require-ssl: true
   basic:
     enabled: false
+  oauth2:
+    client:
+      clientId: ${oauthClientId}
+      clientSecret: ${oauthClientSecret}
+      accessTokenUri: ${oauthClientAccessTokenUri}
+      userAuthorizationUri: ${oauthClientAuthorizationUri}
+    resource:
+      id: ${oauthResourceId}
+      jwt:
+        keyUri: ${oauthResourceTokenKeyUri}
+  maintenanceRoles: ${maintenanceRoles:}
 
 logging:
   level:
     root: ${rootLogLevel:info}
     org:
       springframework: ${springFrameworkLogLevel:info}
-
-maintenanceRoles: ${maintenanceRoles}
+      
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/api-docs.html
