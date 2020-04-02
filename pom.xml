@@ -11,7 +11,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <additionalparam>-Xdoclint:none</additionalparam>
-        <springfox.version>2.8.0</springfox.version>
+        <springdoc.version>1.2.32</springdoc.version>
         <wma.artifactory.url>https://cida.usgs.gov/artifactory</wma.artifactory.url>
         <owasp.dependency.check.version>5.2.4</owasp.dependency.check.version>
     </properties>
@@ -27,6 +27,16 @@
             <id>eros-artifactory-wma-maven-releases</id>
             <name>EROS Artifactory CHS Mirror</name>
             <url>https://artifactory.wma.usgs.gov/artifactory/eros-artifactory-wma-maven-releases</url>
+        </repository>
+        <repository>
+            <id>maven-centralized</id>
+            <name>Maven Snapshots and Releases</name>
+            <url>https://artifactory.wma.usgs.gov/artifactory/maven-central</url>
+        </repository>
+        <repository>
+            <id>wma-maven-centralized</id>
+            <name>Water Mission Area Snapshots and Releases</name>
+            <url>https://artifactory.wma.usgs.gov/artifactory/wma-maven</url>
         </repository>
     </repositories>
 
@@ -87,19 +97,21 @@
             <version>2.1.2</version>
         </dependency>
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>28.2-jre</version>
+		</dependency>
+        
 
         <!-- Testing -->
         <dependency>

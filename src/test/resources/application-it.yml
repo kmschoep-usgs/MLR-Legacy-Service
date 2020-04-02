@@ -2,9 +2,9 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: "jdbc:postgresql://localhost:5432/mlr_legacy"
-    username: mlr_legacy
-    password: test
+    url: "jdbc:postgresql://${mlrLegacyDbHost}:${mlrLegacyDbPort}/mlr_legacy"
+    username: ${mlrLegacyDataUsername}
+    password: ${mlrLegacyDataPassword}
     driver-class-name: org.postgresql.Driver
   security:
     oauth2:
