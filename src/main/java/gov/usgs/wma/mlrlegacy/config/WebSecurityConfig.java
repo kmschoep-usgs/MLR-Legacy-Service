@@ -45,9 +45,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 			.and().csrf().disable()
 			.authorizeRequests()
-				.antMatchers("/swagger-resources/**", "/webjars/**", "/v2/**", "/public").permitAll()
-				.antMatchers("/version", "/info**", "/health/**", "/favicon.ico", "/swagger-ui.html").permitAll()
-				.antMatchers("/actuator/health").permitAll()
+				.antMatchers("/swagger-resources/**", "/webjars/**", "/v3/**", "/public").permitAll()
+				.antMatchers("/version", "/info**", "/health/**", "/favicon.ico", "/swagger-ui/**").permitAll()
+				.antMatchers("/actuator/health**").permitAll()
 				.anyRequest().authenticated()
 			.and().oauth2ResourceServer().authenticationEntryPoint(standardAuthEntryPoint()).jwt(
 				jwt -> jwt.jwtAuthenticationConverter(waterAuthJWTConverter())

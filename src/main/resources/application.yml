@@ -15,6 +15,11 @@ spring:
     driver-class-name: org.postgresql.Driver
   profiles:
     active: default, swagger
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${oauthResourceJwkSetUri}
 
 mybatis:
   type-aliases-package: gov.usgs.wma.mlrlegacy
@@ -37,3 +42,7 @@ logging:
       springframework: ${springFrameworkLogLevel:info}
 
 maintenanceRoles: ${maintenanceRoles}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/api-docs.html

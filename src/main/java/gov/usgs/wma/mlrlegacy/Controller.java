@@ -31,13 +31,14 @@ import org.springframework.web.bind.annotation.RestController;
 import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api(tags={"Legacy Monitoring Locations"})
+@Tag(name="Legacy Monitoring Locations", description="Display")
 @RestController
 @RequestMapping("/monitoringLocations")
 public class Controller {
