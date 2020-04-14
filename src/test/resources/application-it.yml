@@ -27,3 +27,5 @@ security:
   require-ssl: true
   basic:
     enabled: false
+
+maintenanceRoles: test_allowed

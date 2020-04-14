@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -23,8 +22,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -50,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/actuator/health").permitAll()
 				.anyRequest().authenticated()
 			.and().oauth2ResourceServer().authenticationEntryPoint(standardAuthEntryPoint()).jwt(
-				jwt -> jwt.jwtAuthenticationConverter(waterAuthJWTConverter())
+				jwt -> jwt.jwtAuthenticationConverter(keyCloakJWTConverter())
 			)
 		;
 	}
@@ -87,20 +84,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		};
 	}
 
-	@Bean
-	@ConditionalOnProperty("oauthResourceJwkSetUri")
-	JwtDecoder jwtDecoder() {
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
-		jwtDecoder.setClaimSetConverter(new WaterAuthJWTClaimMapper());
-		return jwtDecoder;
-	}
-
-	private Converter<Jwt, AbstractAuthenticationToken> waterAuthJWTConverter() {
+	private Converter<Jwt, AbstractAuthenticationToken> keyCloakJWTConverter() {
 		JwtAuthenticationConverter jwtAuthenticationConverter =
 				new JwtAuthenticationConverter();
 	
 		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter
-				(new WaterAuthJWTAuthorityMapper());
+				(new KeycloakJWTAuthorityMapper());
 			
 		return jwtAuthenticationConverter;
 	}
