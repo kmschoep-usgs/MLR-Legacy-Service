@@ -64,6 +64,16 @@
         <result property="updated" column="site_md" />
         <result property="minorCivilDivisionCode" column="mcd_cd" />
     </resultMap>
+    
+    <resultMap id="loggedActionResult" type="LoggedAction">
+        <result property="agencyCode" column="agency_code" />
+        <result property="siteNumber" column="site_number" />
+        <result property="logChangeTimestamp" column="change_timestamp" />
+        <result property="changeAction" column="change_action" />
+        <result property="changedField" column="changed_field" />
+        <result property="oldValue" column="old_value" />
+        <result property="newValue" column="new_value" />
+    </resultMap>
 
     <sql id="dataCols">
         agency_cd, site_no, station_nm, station_ix,
@@ -116,16 +126,27 @@
 		where station_ix = #{normalizedStationName, jdbcType=CHAR, typeHandler=NotNullTypeHandler}
     </select>
     
-    <select id="getByDistrictCodeDateRange" parameterType="Map" resultMap="result">
-        select <include refid="baseCols"/>
-        from <include refid="schemaName"/>legacy_location
-		where trim(district_cd) in <foreach item="districtCode" collection="districtCodes" separator="," open="(" close=")">
-			#{districtCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler}
+   
+    
+    <sql id="filters">
+		<if test="districtCodes != null">
+			trim(district_cd) in <foreach item="districtCode" collection="districtCodes" separator="," open="(" close=")">
+			#{districtCode, jdbcType=CHAR}
 			</foreach>
+		</if>
 			and (
 				(date(site_cr) >= to_date(#{startDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD') and date(site_cr) &lt;= to_date(#{endDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD'))
 				or (date(site_md) >= to_date(#{startDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD') and date(site_md) &lt;= to_date(#{endDate, jdbcType=CHAR, typeHandler=NotNullTypeHandler}, 'YYYY-MM-DD'))
 			)
+	</sql>
+	
+    <select id="getByDistrictCodeDateRange" parameterType="Map" resultMap="result">
+        select <include refid="baseCols"/>
+        from <include refid="schemaName"/>legacy_location
+		<where>
+			<include refid="filters"/>
+		</where>
+			
     </select>
 
     <insert id="create" parameterType="MonitoringLocation" useGeneratedKeys="true" keyProperty="id">
@@ -315,5 +336,29 @@
                site_no = #{siteNumber, jdbcType=CHAR}
 
     </update>
+    
+    <select id="find" resultMap="loggedActionResult">
+		select agency_code, site_number, change_timestamp, change_action, changed_field, old_value, new_value
+		from  <include refid="schemaName"/>logged_actions_vw
+		<where>
+			<include refid="loggedActionfilters"/>
+		</where>
+	</select>
+
+    
+    <sql id="loggedActionfilters">
+		<if test="agencyCode != null">
+			and trim(agency_code) = #{agencyCode}
+		</if>
+		<if test="siteNumber != null">
+			and trim(site_number) = #{siteNumber}
+		</if>		
+		<if test="startDate != null">
+			 and date(change_timestamp) >= to_date(#{startDate}, 'YYYY-MM-DD') 
+		</if>
+		<if test="endDate != null">
+			 and date(change_timestamp) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
+		</if>
+	</sql>
 
 </mapper>

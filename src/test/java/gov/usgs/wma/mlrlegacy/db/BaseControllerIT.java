@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import gov.usgs.wma.mlrlegacy.Application;
 import gov.usgs.wma.mlrlegacy.config.MethodSecurityConfig;
 import gov.usgs.wma.mlrlegacy.config.WebSecurityConfig;
+import gov.usgs.wma.mlrlegacy.dao.LoggedActionsDao;
 import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 
 @SpringBootTest(
@@ -35,7 +36,7 @@ import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 	)
 @DBRider
 @AutoConfigureTestDatabase(replace=Replace.NONE)
-@Import({MonitoringLocationDao.class, DBTestConfig.class})
+@Import({MonitoringLocationDao.class, LoggedActionsDao.class, DBTestConfig.class})
 public abstract class BaseControllerIT extends BaseIT {
 
 	@Autowired

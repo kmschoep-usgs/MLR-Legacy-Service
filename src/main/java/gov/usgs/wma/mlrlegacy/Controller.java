@@ -28,16 +28,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import gov.usgs.wma.mlrlegacy.dao.LoggedActionsDao;
 import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
+import gov.usgs.wma.mlrlegacy.model.LoggedAction;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api(tags={"Legacy Monitoring Locations"})
+@Tag(name="Legacy Monitoring Locations", description="Display")
 @RestController
 @RequestMapping("/monitoringLocations")
 public class Controller {
@@ -45,6 +50,8 @@ public class Controller {
 	
 	@Autowired
 	private MonitoringLocationDao mLDao;
+	@Autowired
+	private LoggedActionsDao lADao;
 	@Autowired
 	private Validator validator;
 
@@ -63,6 +70,7 @@ public class Controller {
 	public static final String STATION_IX = "stationIx";
 
 	@GetMapping(params = {AGENCY_CODE, SITE_NUMBER})
+	@Operation(summary = "getMonitoringLocations", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation getMonitoringLocations(
 		@RequestParam(name = AGENCY_CODE) String agencyCode,
 		@RequestParam(name = SITE_NUMBER) String siteNumber,
@@ -77,9 +85,10 @@ public class Controller {
 		return ml;
 	}
 	
-	@GetMapping(params = {DISTRICT_CODE, START_DATE, END_DATE})
+	@GetMapping(params = {START_DATE, END_DATE})
+	@Operation(summary = "getMonitoringLocationsByDistrictCodeDateRange", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<MonitoringLocation> getMonitoringLocationsByDistrictCodeDateRange(
-		@RequestParam(name = DISTRICT_CODE) List<String> districtCode,
+		@RequestParam(name = DISTRICT_CODE, required = false) List<String> districtCode,
 		@RequestParam(name = START_DATE) String startDate,
 		@RequestParam(name = END_DATE) String endDate,
 		HttpServletResponse response) {
@@ -101,6 +110,7 @@ public class Controller {
 	 * @return an array of the matching monitoring locations
 	 */
 	@GetMapping(params = NORMALIZED_STATION_NAME)
+	@Operation(summary = "getMonitoringLocationsByDistrictCodeDateRange", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<MonitoringLocation> getMonitoringLocationsByNormalizedName(
 		@RequestParam(name = NORMALIZED_STATION_NAME) String normalizedStationName,
 		HttpServletResponse response) {
@@ -115,6 +125,7 @@ public class Controller {
 	}
 	
 	@PostMapping("/validate")
+	@Operation(summary = "validateUniqueMonitoringLocation", security = @SecurityRequirement(name = "bearerAuth"))
 	public Map<String, Object> validateUniqueMonitoringLocation(@RequestBody MonitoringLocation ml, HttpServletResponse response) throws IOException {
 		Map<String, String> msgMap = new HashMap<>();
 		Map<String, Object> errorMap = new HashMap<>();
@@ -138,6 +149,7 @@ public class Controller {
 	}
 	
 	@GetMapping("/{id}")
+	@Operation(summary = "getMonitoringLocationById", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation getMonitoringLocation(@PathVariable("id") String id, HttpServletResponse response) {
 		MonitoringLocation ml = mLDao.getById(NumberUtils.parseNumber(id, BigInteger.class));
 		if (null == ml) {
@@ -203,6 +215,25 @@ public class Controller {
 			response.sendError(406, "Invalid data submitted to CRU.");
 			return null;
 		}
+	}
+
+	@GetMapping("/loggedActions")
+	public List<LoggedAction> getLoggedActions(
+			@RequestParam(name = AGENCY_CODE, required = false) String agencyCode,
+			@RequestParam(name = SITE_NUMBER, required = false) String siteNumber,
+			@RequestParam(name = START_DATE, required = false) String startDate,
+			@RequestParam(name = END_DATE, required = false) String endDate,
+			HttpServletResponse response) {
+		Map<String, Object> params = new HashMap<>();
+		params.put(AGENCY_CODE, agencyCode);
+		params.put(SITE_NUMBER, siteNumber);
+		params.put(START_DATE, startDate);
+		params.put(END_DATE, endDate);
+		List<LoggedAction> las = lADao.find(params);
+		if (null == las || las.isEmpty()) {
+			response.setStatus(HttpStatus.NOT_FOUND.value());
+		}
+		return las;
 	}
 
 	protected String getUsername() {

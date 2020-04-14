@@ -157,6 +157,18 @@ public class MonitoringLocationDaoRIT extends BaseDaoIT {
 		assertEquals(0, locations.size());
 	}
 	
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	@Test
+	public void getByDistrictCodeDateRangeNoDistrictCode() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.START_DATE, "2000-01-24");
+		params.put(Controller.END_DATE, "2020-01-24");
+		List<MonitoringLocation> locations = dao.getByDistrictCodeDateRange(params);
+		assertNotNull(locations);
+
+		assertEquals(3, locations.size());
+	}
+	
 	@Test
 	public void getById() {
 		MonitoringLocation location = dao.getById(ONE_MILLION);
