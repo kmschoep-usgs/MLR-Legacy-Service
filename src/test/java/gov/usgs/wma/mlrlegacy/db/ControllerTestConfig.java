@@ -4,9 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
@@ -21,20 +22,17 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-import gov.usgs.wma.mlrlegacy.config.WaterAuthJWTClaimMapper;
-
 @Configuration
 @Profile("it")
 public class ControllerTestConfig {
-    @Bean
-    @Primary
-	JwtDecoder jwtDecoder() throws Exception {
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(testPublicKey()).build();
-		jwtDecoder.setClaimSetConverter(new WaterAuthJWTClaimMapper());
-		return jwtDecoder;
-    }
-    
-    @Bean
+
+	@Bean
+	@Primary
+	public JwtDecoder jwtDecoder() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		return NimbusJwtDecoder.withPublicKey(testPublicKey()).signatureAlgorithm(SignatureAlgorithm.RS256).build();
+	}
+
+	@Bean
     public static RSAPublicKey testPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		String keyString;
 
