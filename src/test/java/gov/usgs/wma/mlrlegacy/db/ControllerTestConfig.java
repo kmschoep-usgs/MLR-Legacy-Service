@@ -33,7 +33,7 @@ public class ControllerTestConfig {
 	}
 
 	@Bean
-    public static RSAPublicKey testPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public static RSAPublicKey testPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		String keyString;
 
 		try (InputStream inputStream = new ClassPathResource("test-it.pub").getInputStream()) {
@@ -46,7 +46,7 @@ public class ControllerTestConfig {
 		return publicKey;
 	}
 
-    @Bean
+	@Bean
 	public static RSAPrivateKey testPrivateKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		String keyString;
 
