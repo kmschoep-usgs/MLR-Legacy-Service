@@ -110,7 +110,7 @@ public class Controller {
 	 * @return an array of the matching monitoring locations
 	 */
 	@GetMapping(params = NORMALIZED_STATION_NAME)
-	@Operation(summary = "getMonitoringLocationsByDistrictCodeDateRange", security = @SecurityRequirement(name = "bearerAuth"))
+	@Operation(summary = "getMonitoringLocationsByNormalizedName", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<MonitoringLocation> getMonitoringLocationsByNormalizedName(
 		@RequestParam(name = NORMALIZED_STATION_NAME) String normalizedStationName,
 		HttpServletResponse response) {
@@ -160,6 +160,7 @@ public class Controller {
 
 	@PreAuthorize("hasPermission(#ml, null)")
 	@PostMapping()
+	@Operation(summary = "createMonitoringLocation", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation createMonitoringLocation(@RequestBody MonitoringLocation ml, HttpServletResponse response) throws IOException {
 		ml.setCreatedBy(getUsername());
 		ml.setUpdatedBy(getUsername());
@@ -176,6 +177,7 @@ public class Controller {
 
 	@PreAuthorize("hasPermission(#ml, null)")
 	@PutMapping("/{id}")
+	@Operation(summary = "updateMonitoringLocation", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation updateMonitoringLocation(@PathVariable("id") String id, @RequestBody MonitoringLocation ml,
 			HttpServletResponse response) throws IOException {
 		BigInteger idInt = NumberUtils.parseNumber(id, BigInteger.class);
@@ -198,6 +200,7 @@ public class Controller {
 
 	@PreAuthorize("hasPermission(#ml, null)")
 	@PatchMapping()
+	@Operation(summary = "patchMonitoringLocation", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation patchMonitoringLocation(@RequestBody Map<String, Object> ml, HttpServletResponse response) throws IOException {
 		ml.put(UPDATED_BY, getUsername());
 		if (validator.validate(ml).isEmpty()) {	
@@ -218,6 +221,7 @@ public class Controller {
 	}
 
 	@GetMapping("/loggedActions")
+	@Operation(summary = "getLoggedActions", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<LoggedAction> getLoggedActions(
 			@RequestParam(name = AGENCY_CODE, required = false) String agencyCode,
 			@RequestParam(name = SITE_NUMBER, required = false) String siteNumber,
