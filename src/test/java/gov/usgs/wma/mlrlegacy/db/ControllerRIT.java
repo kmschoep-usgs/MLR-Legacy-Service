@@ -120,13 +120,23 @@ public class ControllerRIT extends BaseControllerIT {
 	}
 	
 	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	public void getMonitoringLocationByDateRangeFound() throws Exception {
+		HttpEntity<String> entity;
+		entity = new HttpEntity<String>("", getUnauthorizedHeaders());
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?&startDate=2016-01-24&endDate=2019-08-24", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		JSONAssert.assertEquals("[" + getExpectedReadJson("twoDistrictCodes.json") + "]", responseEntity.getBody(), JSONCompareMode.STRICT);
+	}
+	
+	@Test
 	public void getMonitoringLocationByDistrictCodeAndDateRangeNotFound() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<>("", getUnauthorizedHeaders());
 		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations?districtCode=xxx&startDate=1999-01-01&endDate=1999-08-24", HttpMethod.GET, entity, String.class);
 		assertEquals(404, responseEntity.getStatusCodeValue());
 		JSONAssert.assertEquals("[]", responseEntity.getBody(), JSONCompareMode.STRICT);
 	}
-	
+		
 	@Test
 	public void getByIdNoToken() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<String>("", getHeaders());

@@ -80,4 +80,4 @@ When using MLR Local Dev this means copying the certificates that MLR Local Dev 
 
 To build and run the application after completing the above steps you can run: `docker-compose up --build {profile}`, replacing `{profile}` with one of the options listed above.
 
-The swagger documentation can then be accessed at <https://localhost:6010/swagger-ui.html>
+The swagger documentation can then be accessed at <https://localhost:6010/swagger-ui/api-docs.html>

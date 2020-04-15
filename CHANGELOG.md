@@ -5,9 +5,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html). (Patch version X.Y.0 is implied if not specified.)
 
 ## [Unreleased]
+### Added
+- Conditional DOI SSL Cert Inclusion
+- Code Quality Parent POM
+- New service to query by zero or more district codes and date range
+- New service to query logged_actions_vw by agency code and/or site number or date range
+
+### Changed
+- Upgraded to SpringBoot 2.2.5
+- Upgraded to Spring Security 5.1
+- Upgraded to JUnit5
+- Upgrade tomcat-embed-core to 9.0.31
+- Fix Docker health check
+- Fix integration tests
+- Fix CORS for PATCH
+- Pull mlr-legacy-db docker image for integration tests from CHS Artifactory.
 
 ## [0.18.0] - 2019-04-12 - End of Pilot
-### Chnaged
+### Changed
 - Merged Docker configuration into repo
 
 ## [0.17.2] - 2019-03-15
