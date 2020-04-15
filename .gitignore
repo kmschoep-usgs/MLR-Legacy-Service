@@ -37,6 +37,8 @@ hs_err_pid*
 /local_keystore.jks.old
 /.vscode/
 /nbproject/
+/.dbeaver
+/Scripts
 
 #cert files
 **/*.jks
