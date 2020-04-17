@@ -19,7 +19,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${oauthResourceJwkSetUri}
+          jwk-set-uri: ${oauthResourceJwkSetUri:}
 
 mybatis:
   type-aliases-package: gov.usgs.wma.mlrlegacy
