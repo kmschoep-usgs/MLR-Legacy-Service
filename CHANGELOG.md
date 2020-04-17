@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fix integration tests
 - Fix CORS for PATCH
 - Pull mlr-legacy-db docker image for integration tests from CHS Artifactory.
+- Unique StationIX validation to check for matching site IDs instead of matching Agency Code and Site Number
 
 ## [0.18.0] - 2019-04-12 - End of Pilot
 ### Changed

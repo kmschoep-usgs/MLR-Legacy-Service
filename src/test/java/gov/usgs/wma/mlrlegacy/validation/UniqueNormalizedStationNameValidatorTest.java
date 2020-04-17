@@ -1,5 +1,6 @@
 package gov.usgs.wma.mlrlegacy.validation;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import javax.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,6 +87,7 @@ public class UniqueNormalizedStationNameValidatorTest {
 	@Test
 	public void testOneMatchingMLFoundOnUpdate() {
 		MonitoringLocation ml = new MonitoringLocation();
+		ml.setId(BigInteger.valueOf(1));
 		ml.setTransactionType("M");
 		ml.setAgencyCode("USGS");
 		ml.setSiteNumber("1");
@@ -94,6 +96,27 @@ public class UniqueNormalizedStationNameValidatorTest {
 		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList(ml));
 		boolean valid = instance.isValid(ml, context);
 		assertTrue(valid);
+	}
+	
+	@Test
+	public void testOneMatchingMLFoundOnUpdateInvalid() {
+		MonitoringLocation mlUpd = new MonitoringLocation();
+		MonitoringLocation mlFound = new MonitoringLocation();
+		mlUpd.setId(BigInteger.valueOf(1));
+		mlUpd.setTransactionType("M");
+		mlUpd.setAgencyCode("USGS");
+		mlUpd.setSiteNumber("1");
+		mlUpd.setStationIx("WATERINGHOLE");
+		
+		mlFound.setId(BigInteger.valueOf(2));
+		mlFound.setTransactionType("M");
+		mlFound.setAgencyCode("USGS");
+		mlFound.setSiteNumber("1");
+		mlFound.setStationIx("WATERINGHOLE");
+		
+		when(dao.getByNormalizedName(any())).thenReturn(Arrays.asList(mlFound));
+		boolean valid = instance.isValid(mlUpd, context);
+		assertFalse(valid);
 	}
 	
 	@Test
