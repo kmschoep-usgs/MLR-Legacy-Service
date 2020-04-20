@@ -65,7 +65,7 @@ public class UniqueNormalizedStationNameValidator extends BaseUniqueMonitoringLo
 			if (1 == existingMonitoringLocations.size()) {
 				//it's OK if there's one existing record as long as it has the same siteNumber and agencyCode
 				MonitoringLocation otherMl = existingMonitoringLocations.get(0);
-				valid = same(monitoringLocationUpdate, otherMl);
+				valid = monitoringLocationUpdate.getId().equals(otherMl.getId());
 			} else if (1 < existingMonitoringLocations.size()) {
 				valid = false;
 			}
