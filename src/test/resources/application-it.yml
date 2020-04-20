@@ -6,11 +6,6 @@ spring:
     username: ${mlrLegacyDataUsername}
     password: ${mlrLegacyDataPassword}
     driver-class-name: org.postgresql.Driver
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          public-key-location: classpath:/test-it.pub
   profiles:
     active: it
 
