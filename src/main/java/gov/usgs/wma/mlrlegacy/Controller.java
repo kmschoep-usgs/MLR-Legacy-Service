@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.NumberUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import gov.usgs.wma.mlrlegacy.dao.LoggedActionsDao;
 import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 import gov.usgs.wma.mlrlegacy.model.LoggedAction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransaction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransactionQueryParams;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransactionSummary;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -41,6 +47,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 
 @Tag(name="Legacy Monitoring Locations", description="Display")
 @RestController
@@ -220,6 +227,30 @@ public class Controller {
 		}
 	}
 
+	@GetMapping("/loggedTransactions/summary")
+	@Operation(summary = "getLoggedTransactionSummary", security = @SecurityRequirement(name = "bearerAuth"))
+	public List<LoggedTransactionSummary> getLoggedTransactionSummary(
+		@RequestParam(required=true) @Pattern(regexp="\\d\\d\\d\\d-\\d\\d-\\d\\d") String startDate,
+		@RequestParam(required=true) @Pattern(regexp="\\d\\d\\d\\d-\\d\\d-\\d\\d") String endDate,
+		@RequestParam(required=false) @Size(min=0, max=3) String districtCode,
+		HttpServletResponse response) {
+		Map<String, Object> params = new HashMap<>();
+		params.put(START_DATE, startDate);
+		params.put(END_DATE, endDate);
+		params.put(DISTRICT_CODE, districtCode);
+		List<LoggedTransactionSummary> result = lADao.transactionSummaryByDC(params);
+		return result;
+	}
+
+	@GetMapping("/loggedTransactions")
+	@Operation(summary = "getLoggedTransactions", security = @SecurityRequirement(name = "bearerAuth"))
+	public List<LoggedTransaction> getLoggedTransactions(
+		@Validated @ParameterObject LoggedTransactionQueryParams params, 
+		HttpServletResponse response) {
+		List<LoggedTransaction> result = lADao.findTransactions(params.getAsQueryParams());
+		return result;
+	}
+
 	@GetMapping("/loggedActions")
 	@Operation(summary = "getLoggedActions", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<LoggedAction> getLoggedActions(
@@ -233,7 +264,7 @@ public class Controller {
 		params.put(SITE_NUMBER, siteNumber);
 		params.put(START_DATE, startDate);
 		params.put(END_DATE, endDate);
-		List<LoggedAction> las = lADao.find(params);
+		List<LoggedAction> las = lADao.findActions(params);
 		if (null == las || las.isEmpty()) {
 			response.setStatus(HttpStatus.NOT_FOUND.value());
 		}

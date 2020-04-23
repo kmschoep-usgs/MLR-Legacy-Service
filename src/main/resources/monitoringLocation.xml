@@ -75,6 +75,22 @@
         <result property="newValue" column="new_value" />
     </resultMap>
 
+    <resultMap id="loggedTransactionResult" type="LoggedTransaction">
+        <result property="agencyCode" column="agency_code" />
+        <result property="siteNumber" column="site_number" />
+        <result property="username" column="username" />
+        <result property="action" column="action" />
+        <result property="actionTime" column="action_time" />
+        <result property="oldFields" column="old_value" javaType="java.util.HashMap" typeHandler="org.apache.ibatis.type.ObjectTypeHandler"/>
+        <result property="changedFields" column="changes" javaType="java.util.HashMap" typeHandler="org.apache.ibatis.type.ObjectTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="loggedTransactionSummaryResult" type="LoggedTransactionSummary">
+        <result property="districtCode" column="district_cd" />
+        <result property="insertCount" column="count_i" />
+        <result property="updateCount" column="count_u" />
+    </resultMap>
+
     <sql id="dataCols">
         agency_cd, site_no, station_nm, station_ix,
         lat_va, long_va, dec_lat_va, dec_long_va, coord_meth_cd, coord_acy_cd,
@@ -334,10 +350,119 @@
            </set>
          where agency_cd = #{agencyCode, jdbcType=CHAR} and
                site_no = #{siteNumber, jdbcType=CHAR}
-
     </update>
-    
-    <select id="find" resultMap="loggedActionResult">
+
+    <sql id="transactionLogs">
+        SELECT  
+            trim(logged_actions.row_data -> 'agency_cd'::text) AS agency_code,
+            trim(logged_actions.row_data -> 'site_no'::text) AS site_number,
+            logged_actions.action_tstamp_stm AS action_time,
+            logged_actions.action AS action,
+            logged_actions.row_data as old_value,
+            logged_actions.changed_fields as changes,
+            case 
+                when logged_actions.changed_fields -> 'site_mn'::text is not null then
+                    trim(logged_actions.changed_fields -> 'site_mn'::text)
+                when logged_actions.row_data -> 'site_mn'::text is not null then
+                    trim(logged_actions.row_data -> 'site_mn'::text)
+                when logged_actions.row_data -> 'site_cn'::text is not null then
+                    trim(logged_actions.row_data -> 'site_cn'::text)
+            end as username
+        FROM audit.logged_actions
+    </sql>
+
+    <select id="transactionSummaryByDC" resultMap="loggedTransactionSummaryResult">
+        SELECT 
+            DISTINCT lasum.district_cd,
+            coalesce(lasum.count_i, 0) as count_i,
+            coalesce(lasum.count_u, 0) as count_u
+        FROM (
+            SELECT 
+                DISTINCT district_cd,
+                count(case when action = 'I' then 1 end) as count_i,
+                count(case when action = 'U' then 1 end) as count_u
+            FROM (
+                SELECT 
+                    trim(logged_actions.row_data -> 'district_cd'::text) as district_cd,
+                    logged_actions.action as action
+                FROM audit.logged_actions
+                WHERE
+                    logged_actions.row_data -> 'district_cd'::text is not null
+                    <if test="districtCode != null">
+                        and trim(logged_actions.row_data -> 'district_cd'::text) = #{districtCode}
+                    </if>
+                    <if test="startDate != null">
+                        and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
+                    </if>
+                    <if test="endDate != null">
+                        and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
+                    </if>
+                UNION ALL 
+                SELECT 
+                    trim(logged_actions.changed_fields -> 'district_cd'::text) as district_cd,
+                    logged_actions.action as action
+                FROM audit.logged_actions
+                WHERE 
+                    logged_actions.changed_fields -> 'district_cd'::text is not null
+                    <if test="districtCode != null">
+                        and trim(logged_actions.changed_fields -> 'district_cd'::text) = #{districtCode}
+                    </if>
+                    <if test="startDate != null">
+                        and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
+                    </if>
+                    <if test="endDate != null">
+                        and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
+                    </if>
+            ) as las
+            GROUP BY district_cd
+        ) as lasum
+        <where>
+            <if test="districtCode != null">
+                trim(lasum.district_cd) = #{districtCode}
+            </if>
+        </where>
+        ORDER BY district_cd
+    </select>
+
+    <select id="findTransactions" resultMap="loggedTransactionResult">
+        SELECT * 
+        FROM(<include refid="transactionLogs"/>) as LTS
+        <where>
+            <include refid="loggedTransactionFilters"/>
+		</where>
+	</select>
+
+    <sql id="loggedTransactionFilters">
+        <if test="agencyCode != null">
+            and LTS.agency_code = #{agencyCode}
+        </if>
+        <if test="siteNumber != null">
+            and LTS.site_number = #{siteNumber}
+        </if>
+        <if test="action != null">
+            and LTS.action = #{action}
+        </if>
+        <if test="username != null">
+            and LTS.username = #{username}
+        </if>
+        <if test="startDate != null">
+            and date(LTS.action_time) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
+        </if>
+        <if test="endDate != null">
+            and date(LTS.action_time) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
+        </if>
+        <if test="districtCode != null">
+            and (
+                trim(LTS.old_value -> 'district_cd'::text) = #{districtCode}
+                OR (
+                    LTS.changes -> 'district_cd'::text is not null AND
+                    trim(LTS.changes -> 'district_cd'::text) = #{districtCode}
+                )
+            )
+        </if>
+    </sql>
+
+    <select id="findActions" resultMap="loggedActionResult">
 		select agency_code, site_number, change_timestamp, change_action, changed_field, old_value, new_value
 		from  <include refid="schemaName"/>logged_actions_vw
 		<where>
@@ -345,7 +470,6 @@
 		</where>
 	</select>
 
-    
     <sql id="loggedActionfilters">
 		<if test="agencyCode != null">
 			and trim(agency_code) = #{agencyCode}
