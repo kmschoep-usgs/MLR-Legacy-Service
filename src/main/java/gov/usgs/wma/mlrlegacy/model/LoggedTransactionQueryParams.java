@@ -13,7 +13,6 @@ public class LoggedTransactionQueryParams {
 	public static final String USERNAME = "username";
 	public static final String ACTION = "action";
 	public static final String DISTRICT_CODE = "districtCode";
-	public static final String DISTRICT_CODES = "districtCodes";
 	public static final String START_DATE = "startDate";
 	public static final String END_DATE = "endDate";
 

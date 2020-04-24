@@ -92,9 +92,11 @@ public class LoggedTransaction {
     public Set<String> getAffectedDistricts() {
         Set<String> result = new HashSet<>();
 
-        result.add(oldFields.get(DISTRICT_CODE_COLUMN).trim());
+        if(oldFields.get(DISTRICT_CODE_COLUMN) != null) {
+            result.add(oldFields.get(DISTRICT_CODE_COLUMN).trim());
+        }
         
-        if(changedFields != null && changedFields.containsKey(DISTRICT_CODE_COLUMN)) {
+        if(changedFields != null && changedFields.get(DISTRICT_CODE_COLUMN) != null) {
             result.add(changedFields.get(DISTRICT_CODE_COLUMN).trim());
         }
 

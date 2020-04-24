@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import com.github.springtestdbunit.annotation.DatabaseSetup;
 
 import gov.usgs.wma.mlrlegacy.Controller;
 import gov.usgs.wma.mlrlegacy.model.LoggedAction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransaction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransactionQueryParams;
 import gov.usgs.wma.mlrlegacy.model.LoggedTransactionSummary;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
 import gov.usgs.wma.mlrlegacy.dao.LoggedActionsDao;
@@ -209,25 +212,154 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 		assertEquals(1, zz3Sum.getUpdateCount());
 	}
 
-	/*
 	@Test
-	public void findTransactionsSingleTest() {
+	@DatabaseSetup("classpath:/testData/setupOne/")
+	public void findTransactionsByAgencyCodeSiteNumberTest() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, DEFAULT_AGENCY_CODE_TRIMMED);
+		params.put(Controller.SITE_NUMBER, DEFAULT_SITE_NUMBER);
+		params.put(LoggedTransactionQueryParams.ACTION, "I");
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
 
+		// Can't guarantee an exact number here since logs aren't purged between tests
+		assertTrue(transactions.size() >= 1);
+		assertNotNull(transactions.get(0).getChanges());
+		assertTrue(transactions.get(0).getChanges().isEmpty());
+		assertEquals(1, transactions.get(0).getAffectedDistricts().size());
 	}
 
 	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
 	public void findTransactionsMultiTest() {
-		
+		Map<String, Object> params = new HashMap<>();
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+
+		// Can't guarantee an exact number here since logs aren't purged between tests
+		assertTrue(transactions.size() >= 3);
+		assertTrue(transactions.stream().map(t -> t.getSiteNumber()).collect(Collectors.toSet()).size() >= 3);
+		assertTrue(transactions.stream().map(t -> t.getSiteNumber()).collect(Collectors.toSet()).containsAll(
+			Arrays.asList("123456789012345", "987654321098765", "876543210987654")
+		));
 	}
 
 	@Test
-	public void findTransactionsUserTest() {
-		
+	public void findTransactionsInsTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("USGS");
+		newLoc1.setSiteNumber("88888887");
+		newLoc1.setStationName("loc1");
+		newLoc1.setStationIx("loc1");
+		newLoc1.setDistrictCode("yy1");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("acins_u");
+		newLoc1.setUpdatedBy("acins_u");
+
+		mlDao.create(newLoc1);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "USGS");
+		params.put(Controller.SITE_NUMBER,"88888887");
+		params.put(LoggedTransactionQueryParams.USERNAME,"acins_u");
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+
+		assertEquals(1, transactions.size());
+		assertEquals("I", transactions.get(0).getAction());
+		assertEquals("USGS", transactions.get(0).getAgencyCode());
+		assertEquals("88888887", transactions.get(0).getSiteNumber());
+		assertEquals("acins_u", transactions.get(0).getUsername());
+		assertEquals(1, transactions.get(0).getAffectedDistricts().size());
+		assertTrue(transactions.get(0).getAffectedDistricts().contains("yy1"));
+	}
+
+	@Test
+	public void findTransactionsModsTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("USGS");
+		newLoc1.setSiteNumber("88888888");
+		newLoc1.setStationName("loc1");
+		newLoc1.setStationIx("loc1");
+		newLoc1.setDistrictCode("yy1");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("acins_u");
+		newLoc1.setUpdatedBy("acins_u");
+
+		mlDao.create(newLoc1);
+
+		newLoc1.setDistrictCode("yy2");
+
+		mlDao.update(newLoc1);
+
+		newLoc1.setStationName("loc1_mod");
+		newLoc1.setUpdatedBy("acmod_u");
+
+		mlDao.update(newLoc1);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "USGS");
+		params.put(Controller.SITE_NUMBER,"88888888");
+		params.put(LoggedTransactionQueryParams.DISTRICT_CODE, "yy1");
+
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+		assertEquals(2, transactions.size());
+
+		params.put(LoggedTransactionQueryParams.ACTION, "I");
+		transactions = dao.findTransactions(params);
+		assertEquals(1, transactions.size());
+		assertEquals("I", transactions.get(0).getAction());
+		assertEquals("USGS", transactions.get(0).getAgencyCode());
+		assertEquals("88888888", transactions.get(0).getSiteNumber());
+		assertEquals("acins_u", transactions.get(0).getUsername());
+		assertTrue(transactions.get(0).getChanges().isEmpty());
+		assertEquals(1, transactions.get(0).getAffectedDistricts().size());
+		assertTrue(transactions.get(0).getAffectedDistricts().contains("yy1"));
+
+		params.put(LoggedTransactionQueryParams.ACTION, "U");
+		transactions = dao.findTransactions(params);
+		assertEquals(1, transactions.size());
+		assertEquals("U", transactions.get(0).getAction());
+		assertEquals("USGS", transactions.get(0).getAgencyCode());
+		assertEquals("88888888", transactions.get(0).getSiteNumber());
+		assertEquals("acins_u", transactions.get(0).getUsername());
+		assertEquals(1, transactions.get(0).getChanges().size());
+		assertEquals("district_cd", transactions.get(0).getChanges().get(0).column);
+		assertEquals("yy1", transactions.get(0).getChanges().get(0).oldValue);
+		assertEquals("yy2", transactions.get(0).getChanges().get(0).newValue);
+		assertEquals(2, transactions.get(0).getAffectedDistricts().size());
+		assertTrue(transactions.get(0).getAffectedDistricts().containsAll(Arrays.asList("yy1", "yy2")));
+
+		params.put(LoggedTransactionQueryParams.DISTRICT_CODE, "yy2");
+		transactions = dao.findTransactions(params);
+		assertEquals(2, transactions.size());
+
+		params.put(LoggedTransactionQueryParams.USERNAME, "acmod_u");
+		transactions = dao.findTransactions(params);
+		assertEquals(1, transactions.size());
+		assertEquals("U", transactions.get(0).getAction());
+		assertEquals("USGS", transactions.get(0).getAgencyCode());
+		assertEquals("88888888", transactions.get(0).getSiteNumber());
+		assertEquals("acmod_u", transactions.get(0).getUsername());
+		assertEquals(1, transactions.get(0).getAffectedDistricts().size());
+		assertTrue(transactions.get(0).getAffectedDistricts().containsAll(Arrays.asList("yy2")));
+		assertEquals(2, transactions.get(0).getChanges().size());
+		LoggedTransaction.ValueChange nmChange = transactions.get(0).getChanges().stream().filter(c -> c.column.equals("station_nm")).collect(Collectors.toList()).get(0);
+		LoggedTransaction.ValueChange mnChange = transactions.get(0).getChanges().stream().filter(c -> c.column.equals("site_mn")).collect(Collectors.toList()).get(0);
+		assertNotNull(nmChange);
+		assertEquals("loc1", nmChange.oldValue.trim());
+		assertEquals("loc1_mod", nmChange.newValue.trim());
+		assertNotNull(mnChange);
+		assertEquals("acins_u", mnChange.oldValue.trim());
+		assertEquals("acmod_u", mnChange.newValue.trim());
+
+		params.put(LoggedTransactionQueryParams.ACTION, "I");
+		transactions = dao.findTransactions(params);
+		assertEquals(0, transactions.size());
 	}
 
 	@Test
 	public void findTransactionsNoResultTest() {
 		
 	}
-	*/
+
 }
