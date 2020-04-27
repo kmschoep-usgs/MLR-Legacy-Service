@@ -7,6 +7,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Component;
 
 import gov.usgs.wma.mlrlegacy.model.LoggedAction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransaction;
+import gov.usgs.wma.mlrlegacy.model.LoggedTransactionSummary;
 
 @Component
 public class LoggedActionsDao {
@@ -17,8 +19,15 @@ public class LoggedActionsDao {
 		this.sqlSession = sqlSession;
 	}
 
-	public List<LoggedAction> find(Map<String, Object> queryParams) {
-		return sqlSession.selectList("find", queryParams);
+	public List<LoggedAction> findActions(Map<String, Object> queryParams) {
+		return sqlSession.selectList("findActions", queryParams);
 	}
 
+	public List<LoggedTransaction> findTransactions(Map<String, Object> queryParams) {
+		return sqlSession.selectList("findTransactions", queryParams);
+	}
+
+	public List<LoggedTransactionSummary> transactionSummaryByDC(Map<String, Object> queryParams) {
+		return sqlSession.selectList("transactionSummaryByDC", queryParams);
+	}
 }

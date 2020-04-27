@@ -136,7 +136,7 @@ public class ControllerRIT extends BaseControllerIT {
 		assertEquals(404, responseEntity.getStatusCodeValue());
 		JSONAssert.assertEquals("[]", responseEntity.getBody(), JSONCompareMode.STRICT);
 	}
-		
+
 	@Test
 	public void getByIdNoToken() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<String>("", getHeaders());
@@ -144,4 +144,33 @@ public class ControllerRIT extends BaseControllerIT {
 		assertEquals(401, responseEntity.getStatusCodeValue());
 	}
 
+	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	public void getTransactionSummaryHappyPathTest() throws Exception {
+		HttpEntity<String> entity = new HttpEntity<String>("", getUnauthorizedHeaders());
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/summary?startDate=2020-01-01&endDate=2020-01-01", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/summary?startDate=2020-01-01&endDate=2020-01-01&districtCode=55", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+	}
+
+	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	public void getTransactionSummaryValidationTest() throws Exception {
+		HttpEntity<String> entity = new HttpEntity<String>("", getUnauthorizedHeaders());
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/summary", HttpMethod.GET, entity, String.class);
+		assertEquals(400, responseEntity.getStatusCodeValue());
+		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/summary?startDate=2020-01-01&districtCode=55", HttpMethod.GET, entity, String.class);
+		assertEquals(400, responseEntity.getStatusCodeValue());
+	}
+
+	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	public void getTransactionsHappyPath() throws Exception {
+		HttpEntity<String> entity = new HttpEntity<String>("", getUnauthorizedHeaders());
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01&districtCode=55", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+	}
 }
