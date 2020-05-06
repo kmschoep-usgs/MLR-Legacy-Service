@@ -16,8 +16,6 @@ import javax.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.NumberUtils;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +36,7 @@ import gov.usgs.wma.mlrlegacy.model.LoggedTransaction;
 import gov.usgs.wma.mlrlegacy.model.LoggedTransactionQueryParams;
 import gov.usgs.wma.mlrlegacy.model.LoggedTransactionSummary;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+import gov.usgs.wma.mlrlegacy.util.UserAuthUtil;
 import gov.usgs.wma.mlrlegacy.validation.UniqueMonitoringLocation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,15 +53,12 @@ import org.springdoc.api.annotations.ParameterObject;
 @RequestMapping("/monitoringLocations")
 public class Controller {
 	private static final transient Logger LOG = LoggerFactory.getLogger(Controller.class);
-	
-	@Autowired
+
+	private UserAuthUtil userAuthUtil;
 	private MonitoringLocationDao mLDao;
-	@Autowired
 	private LoggedActionsDao lADao;
-	@Autowired
 	private Validator validator;
 
-	public static final String UNKNOWN_USERNAME = "unknown ";
 	public static final String AGENCY_CODE = "agencyCode";
 	public static final String SITE_NUMBER = "siteNumber";
 	public static final String DISTRICT_CODE = "districtCode";
@@ -75,6 +71,20 @@ public class Controller {
 	public static final String NORMALIZED_STATION_NAME = "normalizedStationName";
 	public static final String VALIDATION_ERRORS_KEY = "validation_errors";
 	public static final String STATION_IX = "stationIx";
+
+
+	@Autowired
+	public Controller(
+		UserAuthUtil userAuthUtil,
+		MonitoringLocationDao mLDao,
+		LoggedActionsDao lADao,
+		Validator validator
+	) {
+		this.userAuthUtil = userAuthUtil;
+		this.mLDao = mLDao;
+		this.lADao = lADao;
+		this.validator = validator;
+	}
 
 	@GetMapping(params = {AGENCY_CODE, SITE_NUMBER})
 	@Operation(summary = "getMonitoringLocations", security = @SecurityRequirement(name = "bearerAuth"))
@@ -169,9 +179,9 @@ public class Controller {
 	@PostMapping()
 	@Operation(summary = "createMonitoringLocation", security = @SecurityRequirement(name = "bearerAuth"))
 	public MonitoringLocation createMonitoringLocation(@RequestBody MonitoringLocation ml, HttpServletResponse response) throws IOException {
-		ml.setCreatedBy(getUsername());
-		ml.setUpdatedBy(getUsername());
-		if (validator.validate(ml).isEmpty()) {
+		String username = getUsername();
+		ml.setCreatedBy(username);
+		ml.setUpdatedBy(username);
 			BigInteger newId = mLDao.create(ml);
 	
 			response.setStatus(HttpStatus.CREATED.value());
@@ -272,12 +282,6 @@ public class Controller {
 	}
 
 	protected String getUsername() {
-		String username = UNKNOWN_USERNAME;
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (null != authentication && !(authentication instanceof AnonymousAuthenticationToken)) {
-			username= authentication.getName();
-		}
-		return username;
+		return userAuthUtil.getUsername(SecurityContextHolder.getContext().getAuthentication());
 	}
-
 }
