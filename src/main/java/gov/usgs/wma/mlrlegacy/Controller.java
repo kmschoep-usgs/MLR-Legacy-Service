@@ -182,8 +182,9 @@ public class Controller {
 		String username = getUsername();
 		ml.setCreatedBy(username);
 		ml.setUpdatedBy(username);
+		
+		if (validator.validate(ml).isEmpty()) {
 			BigInteger newId = mLDao.create(ml);
-	
 			response.setStatus(HttpStatus.CREATED.value());
 			return mLDao.getById(newId);
 		} else {
