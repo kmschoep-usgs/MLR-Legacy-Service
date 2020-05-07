@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -46,6 +48,7 @@ import org.springframework.web.context.WebApplicationContext;
 import gov.usgs.wma.mlrlegacy.dao.MonitoringLocationDao;
 import gov.usgs.wma.mlrlegacy.db.BaseIT;
 import gov.usgs.wma.mlrlegacy.model.MonitoringLocation;
+import gov.usgs.wma.mlrlegacy.util.UserAuthUtil;
 import gov.usgs.wma.mlrlegacy.validation.UniqueNormalizedStationNameValidator;
 import gov.usgs.wma.mlrlegacy.validation.UniqueSiteNumberAndAgencyCodeValidator;
 
@@ -73,6 +76,9 @@ public class ControllerTest {
 
 	@MockBean
 	private SecurityContext securityContext;
+
+	@SpyBean
+	private UserAuthUtil userAuthUtil;
 
 	@BeforeEach
 	public void setup() {
@@ -513,21 +519,22 @@ public class ControllerTest {
 
 	@Test
 	public void givenNoSecurityContext_thenUsernameUnknown() {
-		Controller controller = new Controller();
-		assertEquals(Controller.UNKNOWN_USERNAME, controller.getUsername());
+		Controller controller = new Controller(userAuthUtil, null, null, null);
+		assertEquals(UserAuthUtil.UNKNOWN_USERNAME, controller.getUsername());
 	}
 
 	@Test
 	@WithAnonymousUser
 	public void givenAnonymousUser_thenUsernameUnkown() {
-		Controller controller = new Controller();
-		assertEquals(Controller.UNKNOWN_USERNAME, controller.getUsername());
+		Controller controller = new Controller(userAuthUtil, null, null, null);
+		assertEquals(UserAuthUtil.UNKNOWN_USERNAME, controller.getUsername());
 	}
 
 	@Test
-	@WithMockUser(username="Known")
+	@WithMockUser
 	public void givenRealUser_thenUsernameKnown() {
-		Controller controller = new Controller();
+		when(userAuthUtil.getUsername(any())).thenReturn("Known");
+		Controller controller = new Controller(userAuthUtil, null, null, null);
 		assertEquals("Known", controller.getUsername());
 	}
 

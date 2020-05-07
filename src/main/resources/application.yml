@@ -34,6 +34,9 @@ security:
   require-ssl: true
   basic:
     enabled: false
+  token:
+    claims:
+      username: preferred_username
 
 logging:
   level:

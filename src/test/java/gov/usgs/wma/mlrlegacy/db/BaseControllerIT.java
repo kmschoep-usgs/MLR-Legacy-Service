@@ -52,9 +52,10 @@ public abstract class BaseControllerIT extends BaseIT {
 		String jwt = JWT.create()
 				.withAudience("mlr")
 				.withExpiresAt(Date.from(Instant.now().plusSeconds(1000)))
-				.withClaim("sub", username)
+				.withClaim("sub", "test-user-id")
 				.withArrayClaim("authorities", roles)
 				.withClaim("email", email)
+				.withClaim("preferred_username", username)
 				.sign(Algorithm.RSA256(testPublicKey, testPrivateKey))
 				;
 		return jwt;
