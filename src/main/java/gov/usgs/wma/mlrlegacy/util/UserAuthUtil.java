@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAuthUtil {
 	private static final transient Logger LOG = LoggerFactory.getLogger(UserAuthUtil.class);
-    
+
 	@Value("${security.token.claims.username:preferred_username}")
-    private String USER_NAME_CLAIM_KEY;
-    
+	private String USER_NAME_CLAIM_KEY;
+
 	public static final String UNKNOWN_USERNAME = "unknown ";
-    
+
 	public String getUsername(Authentication auth) {
 		String username = UNKNOWN_USERNAME;
 		if (null != auth && auth instanceof JwtAuthenticationToken) {
