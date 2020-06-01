@@ -105,11 +105,11 @@ public class LoggedTransactionQueryParams {
 
         params.put(START_DATE, startDate);
 		params.put(END_DATE, endDate);
-		params.put(AGENCY_CODE, agencyCode != null ? agencyCode.trim() : null);
-		params.put(SITE_NUMBER, siteNumber != null ? siteNumber.trim() : null);
-		params.put(USERNAME, username != null ? username.trim() : null);
-		params.put(ACTION, action != null ? action.trim().toUpperCase() : null);
-        params.put(DISTRICT_CODE, districtCode != null ? districtCode.trim() : null);
+		params.put(AGENCY_CODE, agencyCode != null && !agencyCode.trim().isEmpty() ? agencyCode.trim() : null);
+		params.put(SITE_NUMBER, siteNumber != null && !siteNumber.trim().isEmpty() ? siteNumber.trim() : null);
+		params.put(USERNAME, username != null && !username.trim().isEmpty() ? username.trim() : null);
+		params.put(ACTION, action != null && !action.trim().isEmpty() ? action.trim().toUpperCase() : null);
+        params.put(DISTRICT_CODE, districtCode != null && !districtCode.trim().isEmpty() ? districtCode.trim() : null);
         
         return params;
     }
