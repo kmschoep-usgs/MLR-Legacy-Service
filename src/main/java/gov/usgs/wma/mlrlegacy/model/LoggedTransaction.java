@@ -2,10 +2,8 @@ package gov.usgs.wma.mlrlegacy.model;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class LoggedTransaction {
     public static final String DISTRICT_CODE_COLUMN = "district_cd";
@@ -89,8 +87,8 @@ public class LoggedTransaction {
         return result;        
     }
     
-    public Set<String> getAffectedDistricts() {
-        Set<String> result = new HashSet<>();
+    public List<String> getAffectedDistricts() {
+        List<String> result = new ArrayList<>();
 
         if(oldFields.get(DISTRICT_CODE_COLUMN) != null) {
             result.add(oldFields.get(DISTRICT_CODE_COLUMN).trim());

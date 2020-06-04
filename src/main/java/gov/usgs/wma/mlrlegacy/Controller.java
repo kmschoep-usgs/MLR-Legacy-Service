@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -243,12 +246,10 @@ public class Controller {
 	public List<LoggedTransactionSummary> getLoggedTransactionSummary(
 		@RequestParam(required=true) @Pattern(regexp="\\d\\d\\d\\d-\\d\\d-\\d\\d") String startDate,
 		@RequestParam(required=true) @Pattern(regexp="\\d\\d\\d\\d-\\d\\d-\\d\\d") String endDate,
-		@RequestParam(required=false) @Size(min=0, max=3) String districtCode,
 		HttpServletResponse response) {
 		Map<String, Object> params = new HashMap<>();
 		params.put(START_DATE, startDate);
 		params.put(END_DATE, endDate);
-		params.put(DISTRICT_CODE, districtCode);
 		List<LoggedTransactionSummary> result = lADao.transactionSummaryByDC(params);
 		return result;
 	}
@@ -256,9 +257,22 @@ public class Controller {
 	@GetMapping("/loggedTransactions")
 	@Operation(summary = "getLoggedTransactions", security = @SecurityRequirement(name = "bearerAuth"))
 	public List<LoggedTransaction> getLoggedTransactions(
-		@Validated @ParameterObject LoggedTransactionQueryParams params, 
+		@Validated @ParameterObject LoggedTransactionQueryParams params,
+		@RequestParam(required=true) @Min(1) @Max(10) Integer pageSize,
+		@RequestParam(required=true) @Min(1) Integer pageNum,
+		@RequestParam(required=true) @Size(min=6, max=20) @Nullable String sortBy,
+		@RequestParam(required=true) @Size(min=3, max=4) @Nullable String sortDir,
 		HttpServletResponse response) {
-		List<LoggedTransaction> result = lADao.findTransactions(params.getAsQueryParams());
+		List<LoggedTransaction> result = lADao.findTransactions(params.getAsQueryParams(pageSize, pageNum, sortBy, sortDir));
+		return result;
+	}
+
+	@GetMapping("/loggedTransactions/count")
+	@Operation(summary = "getLoggedTransactionsCount", security = @SecurityRequirement(name = "bearerAuth"))
+	public Integer getLoggedTransactionsCount(
+		@Validated @ParameterObject LoggedTransactionQueryParams params,
+		HttpServletResponse response) {
+		Integer result = lADao.countTransactions(params.getAsQueryParams());
 		return result;
 	}
 

@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -87,7 +86,7 @@ public class LoggedTransactionTest {
         transaction.setOldFields(oldFields);
         transaction.setChangedFields(changedFields);
 
-        Set<String> codes = transaction.getAffectedDistricts();
+        List<String> codes = transaction.getAffectedDistricts();
         assertEquals(1, codes.size());
         assertTrue(codes.contains("12"));
 
