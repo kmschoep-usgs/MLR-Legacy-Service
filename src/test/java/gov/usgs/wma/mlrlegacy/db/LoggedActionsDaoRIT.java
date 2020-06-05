@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -76,22 +77,11 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 	}
 
 	@Test
-	@DatabaseSetup("classpath:/testData/setupOne/")
-	public void getTransactionSummaryByDCSingleTest() {
-		Map<String, Object> params = new HashMap<>();
-		params.put(Controller.DISTRICT_CODE, "dis");
-		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(params);
-		assertEquals(1, summaries.size());
-		assertEquals("dis", summaries.get(0).getDistrictCode());
-		// Can't guarantee an exact number here since logs aren't purged between tests
-		assertTrue(summaries.get(0).getInsertCount() > 0);
-		assertTrue(summaries.get(0).getUpdateCount() != null);
-	}
-
-	@Test
 	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
-	public void getTransactionSummaryByDCMulti() {
-		Map<String, Object> params = new HashMap<>();
+	public void getTransactionSummaryTest() {
+		Map<String,Object> params = new HashMap<>();
+		params.put("startDate", LocalDate.now().toString());
+		params.put("endDate", LocalDate.now().toString());
 		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(params);
 
 		// Can't guarantee an exact number here since logs aren't purged between tests
@@ -137,7 +127,11 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 		mlDao.create(newLoc2);
 		mlDao.create(newLoc3);
 
-		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(new HashMap<>());
+		Map<String,Object> params = new HashMap<>();
+		params.put("startDate", LocalDate.now().toString());
+		params.put("endDate", LocalDate.now().toString());
+
+		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(params);
 		assertTrue(summaries.size() >= 2);
 
 		LoggedTransactionSummary zz1Sum = summaries.stream().filter(s -> s.getDistrictCode().equals("zz1")).collect(Collectors.toList()).get(0);
@@ -194,7 +188,11 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 		mlDao.update(newLoc1);
 		mlDao.update(newLoc2);
 
-		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(new HashMap<>());
+		Map<String,Object> params = new HashMap<>();
+		params.put("startDate", LocalDate.now().toString());
+		params.put("endDate", LocalDate.now().toString());
+
+		List<LoggedTransactionSummary> summaries = dao.transactionSummaryByDC(params);
 		assertTrue(summaries.size() >= 3);
 
 		LoggedTransactionSummary zz1Sum = summaries.stream().filter(s -> s.getDistrictCode().equals("zz1")).collect(Collectors.toList()).get(0);
@@ -359,7 +357,250 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 
 	@Test
 	public void findTransactionsNoResultTest() {
-		
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "USGS");
+		params.put(Controller.SITE_NUMBER,"00000000");
+		params.put(LoggedTransactionQueryParams.DISTRICT_CODE, "nan");
+
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+		assertEquals(0, transactions.size());
 	}
 
+	@Test
+	public void findTransactionsSortTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("FTST");
+		newLoc1.setSiteNumber("12345671");
+		newLoc1.setStationName("ftstloc1");
+		newLoc1.setStationIx("ftstloc1");
+		newLoc1.setDistrictCode("222");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("site_cn");
+		newLoc1.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc2 = new MonitoringLocation();
+		newLoc2.setAgencyCode("FTST");
+		newLoc2.setSiteNumber("12345672");
+		newLoc2.setStationName("ftstloc2");
+		newLoc2.setStationIx("ftstloc2");
+		newLoc2.setDistrictCode("111");
+		newLoc2.setCreated("2017-08-24 09:17:23");
+		newLoc2.setUpdated("2017-08-24 09:17:23");
+		newLoc2.setCreatedBy("site_cn");
+		newLoc2.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc3 = new MonitoringLocation();
+		newLoc3.setAgencyCode("FTST");
+		newLoc3.setSiteNumber("12345673");
+		newLoc3.setStationName("ftstloc3");
+		newLoc3.setStationIx("ftstloc3");
+		newLoc3.setDistrictCode("222");
+		newLoc3.setCreated("2017-08-24 09:16:23");
+		newLoc3.setUpdated("2017-08-24 09:16:23");
+		newLoc3.setCreatedBy("site_cn");
+		newLoc3.setUpdatedBy("site_mn");
+
+		mlDao.create(newLoc1);
+		mlDao.create(newLoc2);
+		mlDao.create(newLoc3);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "FTST");
+
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345672", transactions.get(1).getSiteNumber());
+		assertEquals("12345671", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.SORT_BY, "siteNumber");
+		transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345672", transactions.get(1).getSiteNumber());
+		assertEquals("12345671", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.SORT_BY, "siteNumber");
+		params.put(LoggedTransactionQueryParams.SORT_DIR, "ASC");
+		transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345671", transactions.get(0).getSiteNumber());
+		assertEquals("12345672", transactions.get(1).getSiteNumber());
+		assertEquals("12345673", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.SORT_BY, "affectedDistricts");
+		params.put(LoggedTransactionQueryParams.SORT_DIR, "ASC");
+		transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345672", transactions.get(0).getSiteNumber());
+		assertEquals("12345673", transactions.get(1).getSiteNumber());
+		assertEquals("12345671", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.SORT_BY, "affectedDistricts");
+		params.put(LoggedTransactionQueryParams.SORT_DIR, "DESC");
+		transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345671", transactions.get(1).getSiteNumber());
+		assertEquals("12345672", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.SORT_BY, "affectedDistricts");
+		params.remove(LoggedTransactionQueryParams.SORT_DIR);
+		transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345671", transactions.get(1).getSiteNumber());
+		assertEquals("12345672", transactions.get(2).getSiteNumber());
+	}
+
+	@Test
+	public void findTransactionsPaginationTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("FTPT");
+		newLoc1.setSiteNumber("12345671");
+		newLoc1.setStationName("ftstloc1");
+		newLoc1.setStationIx("ftstloc1");
+		newLoc1.setDistrictCode("222");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("site_cn");
+		newLoc1.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc2 = new MonitoringLocation();
+		newLoc2.setAgencyCode("FTPT");
+		newLoc2.setSiteNumber("12345672");
+		newLoc2.setStationName("ftstloc2");
+		newLoc2.setStationIx("ftstloc2");
+		newLoc2.setDistrictCode("111");
+		newLoc2.setCreated("2017-08-24 09:17:23");
+		newLoc2.setUpdated("2017-08-24 09:17:23");
+		newLoc2.setCreatedBy("site_cn");
+		newLoc2.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc3 = new MonitoringLocation();
+		newLoc3.setAgencyCode("FTPT");
+		newLoc3.setSiteNumber("12345673");
+		newLoc3.setStationName("ftstloc3");
+		newLoc3.setStationIx("ftstloc3");
+		newLoc3.setDistrictCode("222");
+		newLoc3.setCreated("2017-08-24 09:16:23");
+		newLoc3.setUpdated("2017-08-24 09:16:23");
+		newLoc3.setCreatedBy("site_cn");
+		newLoc3.setUpdatedBy("site_mn");
+
+		mlDao.create(newLoc1);
+		mlDao.create(newLoc2);
+		mlDao.create(newLoc3);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "FTPT");
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 3);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 1);
+
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+		assertEquals(3, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345672", transactions.get(1).getSiteNumber());
+		assertEquals("12345671", transactions.get(2).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 3);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 2);
+		transactions = dao.findTransactions(params);
+		assertEquals(0, transactions.size());
+
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 2);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 2);
+		transactions = dao.findTransactions(params);
+		assertEquals(1, transactions.size());
+		assertEquals("12345671", transactions.get(0).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 2);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 1);
+		transactions = dao.findTransactions(params);
+		assertEquals(2, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345672", transactions.get(1).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 2);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 1);
+		params.put(LoggedTransactionQueryParams.SORT_BY, "affectedDistricts");
+		transactions = dao.findTransactions(params);
+		assertEquals(2, transactions.size());
+		assertEquals("12345673", transactions.get(0).getSiteNumber());
+		assertEquals("12345671", transactions.get(1).getSiteNumber());
+
+		params.put(LoggedTransactionQueryParams.PAGE_SIZE, 2);
+		params.put(LoggedTransactionQueryParams.PAGE_NUM, 1);
+		params.put(LoggedTransactionQueryParams.SORT_BY, "affectedDistricts");
+		params.put(LoggedTransactionQueryParams.SORT_DIR, "ASC");
+		transactions = dao.findTransactions(params);
+		assertEquals(2, transactions.size());
+		assertEquals("12345672", transactions.get(0).getSiteNumber());
+		assertEquals("12345673", transactions.get(1).getSiteNumber());
+	}
+
+	@Test
+	public void countTransactionsTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("CTT");
+		newLoc1.setSiteNumber("12345671");
+		newLoc1.setStationName("ftstloc1");
+		newLoc1.setStationIx("ftstloc1");
+		newLoc1.setDistrictCode("222");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("site_cn");
+		newLoc1.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc2 = new MonitoringLocation();
+		newLoc2.setAgencyCode("CTT");
+		newLoc2.setSiteNumber("12345672");
+		newLoc2.setStationName("ftstloc2");
+		newLoc2.setStationIx("ftstloc2");
+		newLoc2.setDistrictCode("111");
+		newLoc2.setCreated("2017-08-24 09:17:23");
+		newLoc2.setUpdated("2017-08-24 09:17:23");
+		newLoc2.setCreatedBy("site_cn");
+		newLoc2.setUpdatedBy("site_mn");
+
+		MonitoringLocation newLoc3 = new MonitoringLocation();
+		newLoc3.setAgencyCode("CTT");
+		newLoc3.setSiteNumber("12345673");
+		newLoc3.setStationName("ftstloc3");
+		newLoc3.setStationIx("ftstloc3");
+		newLoc3.setDistrictCode("222");
+		newLoc3.setCreated("2017-08-24 09:16:23");
+		newLoc3.setUpdated("2017-08-24 09:16:23");
+		newLoc3.setCreatedBy("site_cn");
+		newLoc3.setUpdatedBy("site_mn");
+
+		mlDao.create(newLoc1);
+		mlDao.create(newLoc2);
+		mlDao.create(newLoc3);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "CTT");
+		assertEquals(3, dao.countTransactions(params));
+
+		params.put(Controller.SITE_NUMBER, "12345671");
+		assertEquals(1, dao.countTransactions(params));
+
+		params.put(Controller.SITE_NUMBER, "12345674");
+		assertEquals(0, dao.countTransactions(params));
+
+		params.remove(Controller.SITE_NUMBER);
+		params.put(Controller.DISTRICT_CODE, "111");
+		assertEquals(1, dao.countTransactions(params));
+
+		params.put(Controller.DISTRICT_CODE, "222");
+		assertEquals(2, dao.countTransactions(params));
+
+		params.put(Controller.SITE_NUMBER, "12345671");
+		params.put(Controller.DISTRICT_CODE, "222");
+		assertEquals(1, dao.countTransactions(params));
+		
+		params.put(Controller.DISTRICT_CODE, "111");
+		assertEquals(0, dao.countTransactions(params));
+	}
 }

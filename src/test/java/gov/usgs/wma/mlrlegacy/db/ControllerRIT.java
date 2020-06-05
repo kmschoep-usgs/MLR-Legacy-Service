@@ -168,9 +168,19 @@ public class ControllerRIT extends BaseControllerIT {
 	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
 	public void getTransactionsHappyPath() throws Exception {
 		HttpEntity<String> entity = new HttpEntity<String>("", getUnauthorizedHeaders());
-		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01", HttpMethod.GET, entity, String.class);
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01&pageNum=1&pageSize=1", HttpMethod.GET, entity, String.class);
 		assertEquals(200, responseEntity.getStatusCodeValue());
-		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01&districtCode=55", HttpMethod.GET, entity, String.class);
+		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions?startDate=2020-01-01&endDate=2020-01-01&districtCode=55&pageNum=1&pageSize=1", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+	}
+
+	@Test
+	@DatabaseSetup("classpath:/testData/setupThreeDistrictCodes/")
+	public void getTransactionCountHappyPath() throws Exception {
+		HttpEntity<String> entity = new HttpEntity<String>("", getUnauthorizedHeaders());
+		ResponseEntity<String> responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/count?startDate=2020-01-01&endDate=2020-01-01&pageNum=1&pageSize=1", HttpMethod.GET, entity, String.class);
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		responseEntity = restTemplate.exchange("/monitoringLocations/loggedTransactions/count?startDate=2020-01-01&endDate=2020-01-01&districtCode=55&pageNum=1&pageSize=1", HttpMethod.GET, entity, String.class);
 		assertEquals(200, responseEntity.getStatusCodeValue());
 	}
 }

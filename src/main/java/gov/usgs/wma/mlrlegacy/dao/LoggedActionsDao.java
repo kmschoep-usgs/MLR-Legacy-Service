@@ -27,6 +27,10 @@ public class LoggedActionsDao {
 		return sqlSession.selectList("findTransactions", queryParams);
 	}
 
+	public Integer countTransactions(Map<String, Object> queryParams) {
+		return sqlSession.selectOne("countTransactions", queryParams);
+	}
+
 	public List<LoggedTransactionSummary> transactionSummaryByDC(Map<String, Object> queryParams) {
 		return sqlSession.selectList("transactionSummaryByDC", queryParams);
 	}
