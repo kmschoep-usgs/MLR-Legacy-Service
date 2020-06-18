@@ -474,16 +474,16 @@
 
     <sql id="loggedTransactionFilters">
         <if test="agencyCode != null">
-            and LTS.agency_code like #{agencyCode}
+            and LTS.agency_code ILIKE #{agencyCode}
         </if>
         <if test="siteNumber != null">
-            and LTS.site_number like #{siteNumber}
+            and LTS.site_number ILIKE #{siteNumber}
         </if>
         <if test="action != null">
             and LTS.action = #{action}
         </if>
         <if test="username != null">
-            and LTS.username like #{username}
+            and LTS.username ILIKE #{username}
         </if>
         <if test="startDate != null">
             and date(LTS.action_time) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
