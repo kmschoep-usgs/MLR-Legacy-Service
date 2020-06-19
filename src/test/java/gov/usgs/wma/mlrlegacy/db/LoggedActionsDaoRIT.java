@@ -603,4 +603,34 @@ public class LoggedActionsDaoRIT extends BaseDaoIT {
 		params.put(Controller.DISTRICT_CODE, "111");
 		assertEquals(0, dao.countTransactions(params));
 	}
+
+	@Test
+	public void findTransactionsCaseInsensitiveTest() {
+		MonitoringLocation newLoc1 = new MonitoringLocation();
+		newLoc1.setAgencyCode("TCIT");
+		newLoc1.setSiteNumber("99999998");
+		newLoc1.setStationName("loc99999998");
+		newLoc1.setStationIx("loc99999998");
+		newLoc1.setDistrictCode("yy1");
+		newLoc1.setCreated("2017-08-24 09:15:23");
+		newLoc1.setUpdated("2017-08-24 09:15:23");
+		newLoc1.setCreatedBy("acins_u");
+		newLoc1.setUpdatedBy("acins_u");
+
+		mlDao.create(newLoc1);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put(Controller.AGENCY_CODE, "tCiT");
+		params.put(Controller.SITE_NUMBER,"99999998");
+		params.put(LoggedTransactionQueryParams.USERNAME,"aCiNs_U");
+		List<LoggedTransaction> transactions = dao.findTransactions(params);
+
+		assertEquals(1, transactions.size());
+		assertEquals("I", transactions.get(0).getAction());
+		assertEquals("TCIT", transactions.get(0).getAgencyCode());
+		assertEquals("99999998", transactions.get(0).getSiteNumber());
+		assertEquals("acins_u", transactions.get(0).getUsername());
+		assertEquals(1, transactions.get(0).getAffectedDistricts().size());
+		assertTrue(transactions.get(0).getAffectedDistricts().contains("yy1"));
+	}
 }
