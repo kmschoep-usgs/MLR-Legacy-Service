@@ -72,13 +72,18 @@ public abstract class BaseUniqueMonitoringLocationValidator {
 	 * 
 	 * @param ml1
 	 * @param ml2
-	 * @return true if they have the same agency code and site number,
-	 * false otherwise
+	 * @return 
+	 * If both have an ID: true if the IDs match and false if not
+	 * Else If both don't have an ID: true if they have the same Agency Code and Site Number
 	 */
 	protected boolean same(MonitoringLocation ml1, MonitoringLocation ml2) {
-		boolean same = Objects.equal(ml1.getAgencyCode(), ml2.getAgencyCode())
+		// If both MLs have an ID use that, otherwise use Agency Code and Site Number
+		if(ml1.getId() != null && ml2.getId() != null) {
+			return ml1.getId().equals(ml2.getId());
+		}
+		
+		return Objects.equal(ml1.getAgencyCode(), ml2.getAgencyCode())
 			&& Objects.equal(ml1.getSiteNumber(), ml2.getSiteNumber());
-		return same;
 	}
 	
 	/**
