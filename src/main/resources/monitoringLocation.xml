@@ -369,58 +369,48 @@
                     trim(logged_actions.row_data -> 'site_cn'::text)
             end as username
         FROM audit.logged_actions
+        <where>
+            <include refid="transactionLogsFilters"/>
+		</where>
+    </sql>
+
+    <sql id="transactionLogsFilters">
+        <if test="action != null">
+            and logged_actions.action = #{action}
+        </if>
+        <if test="startDate != null">
+            and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
+        </if>
+        <if test="endDate != null">
+            and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
+        </if>
     </sql>
 
     <select id="transactionSummaryByDC" resultMap="loggedTransactionSummaryResult">
-        SELECT 
-            DISTINCT lasum.district_cd,
-            coalesce(lasum.count_i, 0) as count_i,
-            coalesce(lasum.count_u, 0) as count_u
-        FROM (
+        SELECT district_cd, sum(count_i) as count_i, sum(count_u) as count_u from (
             SELECT 
-                DISTINCT district_cd,
+                trim(logged_actions.row_data -> 'district_cd'::text) as district_cd,
                 count(case when action = 'I' then 1 end) as count_i,
                 count(case when action = 'U' then 1 end) as count_u
-            FROM (
-                SELECT 
-                    trim(logged_actions.row_data -> 'district_cd'::text) as district_cd,
-                    logged_actions.action as action
-                FROM audit.logged_actions
-                WHERE
-                    logged_actions.row_data -> 'district_cd'::text is not null
-                    <if test="districtCode != null">
-                        and trim(logged_actions.row_data -> 'district_cd'::text) = #{districtCode}
-                    </if>
-                    <if test="startDate != null">
-                        and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
-                    </if>
-                    <if test="endDate != null">
-                        and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
-                    </if>
-                UNION ALL 
-                SELECT 
-                    trim(logged_actions.changed_fields -> 'district_cd'::text) as district_cd,
-                    logged_actions.action as action
-                FROM audit.logged_actions
-                WHERE 
-                    logged_actions.changed_fields -> 'district_cd'::text is not null
-                    <if test="districtCode != null">
-                        and trim(logged_actions.changed_fields -> 'district_cd'::text) = #{districtCode}
-                    </if>
-                    <if test="startDate != null">
-                        and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 
-                    </if>
-                    <if test="endDate != null">
-                        and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD') 
-                    </if>
-            ) as las
-            GROUP BY district_cd
-        ) as lasum
-        <where>
-            <if test="districtCode != null">
-                trim(lasum.district_cd) = #{districtCode}
-            </if>
-        </where>
+            FROM audit.logged_actions
+            WHERE
+                trim(logged_actions.row_data -> 'district_cd'::text) is not null
+                and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+                and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+            GROUP BY trim(logged_actions.row_data -> 'district_cd'::text)
+            UNION ALL
+            SELECT 
+                trim(logged_actions.changed_fields -> 'district_cd'::text) as district_cd,
+                count(case when action = 'I' then 1 end) as count_i,
+                count(case when action = 'U' then 1 end) as count_u
+            FROM audit.logged_actions
+            WHERE
+                trim(logged_actions.changed_fields -> 'district_cd'::text) is not null
+                and date(logged_actions.action_tstamp_stm) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+                and date(logged_actions.action_tstamp_stm) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+            GROUP BY trim(logged_actions.changed_fields -> 'district_cd'::text)
+        ) as inner_data
+        GROUP by district_cd
         ORDER BY district_cd
     </select>
 
@@ -430,20 +420,70 @@
         <where>
             <include refid="loggedTransactionFilters"/>
 		</where>
+        <include refid="loggedTransactionSort"/>
+        <include refid="paginate"/>
+	</select>
+
+    <sql id="loggedTransactionSort">
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'action'">
+                LTS.action
+            </when>
+            <when test="sortBy == 'username'">
+                LTS.username
+            </when>
+            <when test="sortBy == 'affectedDistricts' or sortBy == 'districtCode'">
+                trim(LTS.old_value -> 'district_cd'::text)
+            </when>
+            <when test="sortBy == 'agencyCode'">
+                LTS.agency_code
+            </when>
+            <when test="sortBy == 'siteNumber'">
+                LTS.site_number
+            </when>
+            <otherwise>
+                LTS.action_time
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="sortDir == 'ASC'">
+                ASC
+            </when>
+            <otherwise>
+                DESC
+            </otherwise>
+        </choose>
+        <if test="sortBy != null and sortBy != 'actionTime'">
+            ,LTS.action_time DESC
+        </if>
+    </sql>
+
+    <sql id="paginate">
+        LIMIT #{pageSize}
+        OFFSET #{pageSize} * (#{pageNum} - 1)
+    </sql>
+
+    <select id="countTransactions" resultType="Integer">
+        SELECT count(*)
+        FROM(<include refid="transactionLogs"/>) as LTS
+        <where>
+            <include refid="loggedTransactionFilters"/>
+		</where>
 	</select>
 
     <sql id="loggedTransactionFilters">
         <if test="agencyCode != null">
-            and LTS.agency_code = #{agencyCode}
+            and LTS.agency_code ILIKE #{agencyCode}
         </if>
         <if test="siteNumber != null">
-            and LTS.site_number = #{siteNumber}
+            and LTS.site_number ILIKE #{siteNumber}
         </if>
         <if test="action != null">
             and LTS.action = #{action}
         </if>
         <if test="username != null">
-            and LTS.username = #{username}
+            and LTS.username ILIKE #{username}
         </if>
         <if test="startDate != null">
             and date(LTS.action_time) &gt;= to_date(#{startDate}, 'YYYY-MM-DD') 

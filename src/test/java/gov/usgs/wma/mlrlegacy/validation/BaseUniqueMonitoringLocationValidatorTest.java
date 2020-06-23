@@ -154,13 +154,13 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 	}
 
 	@Test
-	public void testSameWithNullAttributes() {
+	public void testSameNullIDWithNullAttributes() {
 		boolean result = instance.same(new MonitoringLocation(), new MonitoringLocation());
 		assertTrue(result);
 	}
 
 	@Test
-	public void testSameWithSameAttributes() {
+	public void testSameNullIDWithSameAttributes() {
 		MonitoringLocation ml1 = new MonitoringLocation();
 		ml1.setAgencyCode("USGS");
 		ml1.setSiteNumber("1");
@@ -169,6 +169,30 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 		ml2.setSiteNumber("1");
 		boolean result = instance.same(ml1, ml2);
 		assertTrue(result);
+	}
+
+	@Test
+	public void testSameNullIDWithDifferentAgency() {
+		MonitoringLocation ml1 = new MonitoringLocation();
+		ml1.setAgencyCode("USGS");
+		ml1.setSiteNumber("1");
+		MonitoringLocation ml2 = new MonitoringLocation();
+		ml2.setAgencyCode("EPA ");
+		ml2.setSiteNumber("1");
+		boolean result = instance.same(ml1, ml2);
+		assertFalse(result);
+	}
+
+	@Test
+	public void testSameNullIDWithDifferentSiteNumber() {
+		MonitoringLocation ml1 = new MonitoringLocation();
+		ml1.setAgencyCode("USGS");
+		ml1.setSiteNumber("2");
+		MonitoringLocation ml2 = new MonitoringLocation();
+		ml2.setAgencyCode("USGS");
+		ml2.setSiteNumber("1");
+		boolean result = instance.same(ml1, ml2);
+		assertFalse(result);
 	}
 	
 	@Test
@@ -176,11 +200,13 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 		MonitoringLocation ml1 = new MonitoringLocation();
 		ml1.setAgencyCode("USGS");
 		ml1.setSiteNumber("1");
+		ml1.setId(BigInteger.valueOf(1));
 		MonitoringLocation ml2 = new MonitoringLocation();
-		ml2.setAgencyCode("EPA");
-		ml2.setSiteNumber("1");
+		ml2.setAgencyCode("EPA ");
+		ml2.setSiteNumber("2");
+		ml2.setId(BigInteger.valueOf(1));
 		boolean result = instance.same(ml1, ml2);
-		assertFalse(result);
+		assertTrue(result);
 	}
 	
 	@Test
@@ -188,9 +214,39 @@ public class BaseUniqueMonitoringLocationValidatorTest {
 		MonitoringLocation ml1 = new MonitoringLocation();
 		ml1.setAgencyCode("USGS");
 		ml1.setSiteNumber("1");
+		ml1.setId(BigInteger.valueOf(1));
 		MonitoringLocation ml2 = new MonitoringLocation();
 		ml2.setAgencyCode("USGS");
 		ml2.setSiteNumber("2");
+		ml2.setId(BigInteger.valueOf(1));
+		boolean result = instance.same(ml1, ml2);
+		assertTrue(result);
+	}
+
+	@Test
+	public void testDifferentIdWithSameAttributes() {
+		MonitoringLocation ml1 = new MonitoringLocation();
+		ml1.setAgencyCode("USGS");
+		ml1.setSiteNumber("1");
+		ml1.setId(BigInteger.valueOf(1));
+		MonitoringLocation ml2 = new MonitoringLocation();
+		ml2.setAgencyCode("USGS");
+		ml2.setSiteNumber("1");
+		ml2.setId(BigInteger.valueOf(2));
+		boolean result = instance.same(ml1, ml2);
+		assertFalse(result);
+	}
+
+	@Test
+	public void testDifferentIdWithDifferentAttributes() {
+		MonitoringLocation ml1 = new MonitoringLocation();
+		ml1.setAgencyCode("EPA ");
+		ml1.setSiteNumber("1");
+		ml1.setId(BigInteger.valueOf(1));
+		MonitoringLocation ml2 = new MonitoringLocation();
+		ml2.setAgencyCode("USGS");
+		ml2.setSiteNumber("1");
+		ml2.setId(BigInteger.valueOf(2));
 		boolean result = instance.same(ml1, ml2);
 		assertFalse(result);
 	}
