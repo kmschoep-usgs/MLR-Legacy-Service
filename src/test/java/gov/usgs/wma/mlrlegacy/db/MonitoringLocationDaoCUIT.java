@@ -233,8 +233,8 @@ public class MonitoringLocationDaoCUIT extends BaseDaoIT {
 		ml.setDataReliabilityCode("t");
 		ml.setAquiferCode("aqfr_cdx");
 		ml.setNationalAquiferCode("nat_aqfr_x");
-		ml.setPrimaryUseOfSite("s");
-		ml.setSecondaryUseOfSite("r");
+		ml.setPrimaryUseOfSiteCode("s");
+		ml.setSecondaryUseOfSiteCode("r");
 		ml.setTertiaryUseOfSiteCode("q");
 		ml.setPrimaryUseOfWaterCode("p");
 		ml.setSecondaryUseOfWaterCode("o");
@@ -290,8 +290,8 @@ public class MonitoringLocationDaoCUIT extends BaseDaoIT {
 		ml.put("dataReliabilityCode", "t");
 		ml.put("aquiferCode", "aqfr_cdx");
 		ml.put("nationalAquiferCode", "nat_aqfr_x");
-		ml.put("primaryUseOfSite", "s");
-		ml.put("secondaryUseOfSite", "r");
+		ml.put("primaryUseOfSiteCode", "s");
+		ml.put("secondaryUseOfSiteCode", "r");
 		ml.put("tertiaryUseOfSiteCode", "q");
 		ml.put("primaryUseOfWaterCode", "p");
 		ml.put("secondaryUseOfWaterCode", "o");

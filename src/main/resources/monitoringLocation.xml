@@ -45,8 +45,8 @@
         <result property="dataReliabilityCode" column="reliability_cd" />
         <result property="aquiferCode" column="aqfr_cd" />
         <result property="nationalAquiferCode" column="nat_aqfr_cd" />
-        <result property="primaryUseOfSite" column="site_use_1_cd" />
-        <result property="secondaryUseOfSite" column="site_use_2_cd" />
+        <result property="primaryUseOfSiteCode" column="site_use_1_cd" />
+        <result property="secondaryUseOfSiteCode" column="site_use_2_cd" />
         <result property="tertiaryUseOfSiteCode" column="site_use_3_cd" />
         <result property="primaryUseOfWaterCode" column="water_use_1_cd" />
         <result property="secondaryUseOfWaterCode" column="water_use_2_cd" />
@@ -208,8 +208,8 @@
                 #{dataReliabilityCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                 #{aquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                 #{nationalAquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
-                #{primaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
-                #{secondaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
+                #{primaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
+                #{secondaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                 #{tertiaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                 #{primaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                 #{secondaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
@@ -271,8 +271,8 @@
                reliability_cd = #{dataReliabilityCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                aqfr_cd = #{aquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                nat_aqfr_cd = #{nationalAquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
-               site_use_1_cd = #{primaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
-               site_use_2_cd = #{secondaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
+               site_use_1_cd = #{primaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
+               site_use_2_cd = #{secondaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                site_use_3_cd = #{tertiaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                water_use_1_cd = #{primaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
                water_use_2_cd = #{secondaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},
@@ -331,8 +331,8 @@
                <if test="_parameter.containsKey('dataReliabilityCode')">reliability_cd = #{dataReliabilityCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
                <if test="_parameter.containsKey('aquiferCode')">aqfr_cd = #{aquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
                <if test="_parameter.containsKey('nationalAquiferCode')">nat_aqfr_cd = #{nationalAquiferCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
-               <if test="_parameter.containsKey('primaryUseOfSite')">site_use_1_cd = #{primaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
-               <if test="_parameter.containsKey('secondaryUseOfSite')">site_use_2_cd = #{secondaryUseOfSite, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
+               <if test="_parameter.containsKey('primaryUseOfSiteCode')">site_use_1_cd = #{primaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
+               <if test="_parameter.containsKey('secondaryUseOfSiteCode')">site_use_2_cd = #{secondaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
                <if test="_parameter.containsKey('tertiaryUseOfSiteCode')">site_use_3_cd = #{tertiaryUseOfSiteCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
                <if test="_parameter.containsKey('primaryUseOfWaterCode')">water_use_1_cd = #{primaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>
                <if test="_parameter.containsKey('secondaryUseOfWaterCode')">water_use_2_cd = #{secondaryUseOfWaterCode, jdbcType=CHAR, typeHandler=NotNullTypeHandler},</if>

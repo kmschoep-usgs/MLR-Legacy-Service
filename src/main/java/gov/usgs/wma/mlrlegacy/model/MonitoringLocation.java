@@ -123,10 +123,10 @@ public class MonitoringLocation {
 	private String nationalWaterUseCode;
 	
 	@Length(min=0, max=1)
-	private String primaryUseOfSite;
+	private String primaryUseOfSiteCode;
 	
 	@Length(min=0, max=1)
-	private String secondaryUseOfSite;
+	private String secondaryUseOfSiteCode;
 	
 	@Length(min=0, max=1)
 	private String tertiaryUseOfSiteCode;
@@ -486,20 +486,20 @@ public class MonitoringLocation {
 		this.nationalWaterUseCode = nationalWaterUseCode;
 	}
 
-	public String getPrimaryUseOfSite() {
-		return primaryUseOfSite;
+	public String getPrimaryUseOfSiteCode() {
+		return primaryUseOfSiteCode;
 	}
 
-	public void setPrimaryUseOfSite(String primaryUseOfSite) {
-		this.primaryUseOfSite = primaryUseOfSite;
+	public void setPrimaryUseOfSiteCode(String primaryUseOfSiteCode) {
+		this.primaryUseOfSiteCode = primaryUseOfSiteCode;
 	}
 
-	public String getSecondaryUseOfSite() {
-		return secondaryUseOfSite;
+	public String getSecondaryUseOfSiteCode() {
+		return secondaryUseOfSiteCode;
 	}
 
-	public void setSecondaryUseOfSite(String secondaryUseOfSite) {
-		this.secondaryUseOfSite = secondaryUseOfSite;
+	public void setSecondaryUseOfSiteCode(String secondaryUseOfSiteCode) {
+		this.secondaryUseOfSiteCode = secondaryUseOfSiteCode;
 	}
 
 	public String getTertiaryUseOfSiteCode() {

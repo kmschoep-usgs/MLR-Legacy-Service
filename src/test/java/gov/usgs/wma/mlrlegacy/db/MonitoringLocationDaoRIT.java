@@ -217,8 +217,8 @@ public class MonitoringLocationDaoRIT extends BaseDaoIT {
 		assertEquals("h", location.getDataReliabilityCode());
 		assertEquals("aqfr_cd ", location.getAquiferCode());
 		assertEquals("nat_aqfr_c", location.getNationalAquiferCode());
-		assertEquals("i", location.getPrimaryUseOfSite());
-		assertEquals("j", location.getSecondaryUseOfSite());
+		assertEquals("i", location.getPrimaryUseOfSiteCode());
+		assertEquals("j", location.getSecondaryUseOfSiteCode());
 		assertEquals("k", location.getTertiaryUseOfSiteCode());
 		assertEquals("l", location.getPrimaryUseOfWaterCode());
 		assertEquals("m", location.getSecondaryUseOfWaterCode());
